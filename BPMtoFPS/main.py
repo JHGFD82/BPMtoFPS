@@ -29,7 +29,7 @@ def seconds_to_timecode(seconds, fps):
     return f"{math.floor(seconds)}:{math.floor(seconds % 1 * fps):02d}"
 
 
-def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, ticks_per_beat):
+def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, ticks_per_beat=TPB, do_print=False):
     """
     Convert some form of audio timing (either MIDI ticks or timecode) to a video format (either video frames or
     timecode).
@@ -40,6 +40,7 @@ def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, 
         bpm (float): The beats per minute
         fps (float): The frames per second
         ticks_per_beat (int): The number of ticks per beat
+        do_print (bool): If true, print the result to the console
     Returns:
         The frame number at which the note occurs
     """
@@ -52,6 +53,9 @@ def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, 
         output = seconds_to_frames(seconds, fps)
     elif out_format == 'timecode':
         output = seconds_to_timecode(seconds, fps)
+
+    if do_print:
+        print(output)
 
     return output
 
@@ -67,6 +71,8 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--fps', type=float, required=True, help='Frames per second of the video')
     parser.add_argument('-tpb', '--ticks_per_beat', type=int, default=TPB, help='Number of ticks per beat (default is '
                                                                                 '480)')
+    parser.add_argument('-p', '--print', action='store_true', default=False, help='Print the output to the console')
     args = parser.parse_args()
 
-    convert_audio_to_video_timing(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat)
+    convert_audio_to_video_timing(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
+                                  args.print)
