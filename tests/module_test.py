@@ -2,6 +2,7 @@ import pytest
 from BPMtoFPS.main import (
     ticks_or_timecode,
     ticks_to_seconds,
+    beats_to_seconds,
     timecode_to_seconds,
     seconds_to_frames,
     seconds_to_timecode,
@@ -18,6 +19,10 @@ def test_ticks_or_timecode():
 def test_ticks_to_seconds():
     # Example test case. Adjust according to your function's logic.
     assert ticks_to_seconds(480, 120, 480) == 0.5
+
+
+def test_beats_to_timecode():
+    assert beats_to_seconds(24, 192) == 7.5
 
 
 def test_timecode_to_seconds():
