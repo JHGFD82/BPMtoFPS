@@ -5,11 +5,28 @@ TPB = 480  # Ticks per beat (resolution)
 SPM = 60  # Seconds per minute
 
 
-def ticks_or_timecode(string):
-    if ":" in string:
-        return string
-    else:
-        return int(string)
+def ticks_or_timecode(value):
+    """
+    Ensure that the supplied string is either valid timecode or integer.
+    Parameters:
+        value (string/int): The text to be analyzed
+    Returns:
+        The text as either a string or an integer based on the appearance of the ':' in the string.
+    Raises:
+        ValueError: If the value cannot be converted to integer (for beats and ticks) or isn't a string (for timecodes)
+    """
+    if isinstance(value, float):  # To catch case when an input is float and it's not timecode
+        raise ValueError("Input must be a string for timecodes or an integer for beats and ticks. Floats are not "
+                         "accepted.")
+    try:
+        # Presence of ":" indicates this should be a timecode, so keep it as string
+        if ":" in value:
+            return value
+        # Otherwise, try to convert to an integer for beats and ticks
+        else:
+            return int(value)
+    except (ValueError, TypeError) as e:
+        raise ValueError("Input must be a string for timecodes or an integer for beats and ticks") from e
 
 
 def ticks_to_seconds(input_value, bpm, ticks_per_beat):
@@ -35,8 +52,8 @@ def seconds_to_timecode(seconds, fps):
 
 def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm, fps, ticks_per_beat=TPB, do_print=False):
     """
-    Convert some form of audio timing (either MIDI ticks or timecode) to a video format (either video frames or
-    timecode).
+    The main function of BPMtoFPS. Convert some form of audio timing (either MIDI ticks or timecode) to a video format
+    (either video frames or timecode).
     Parameters:
         ref_format (string): The input of the function as either a number of ticks, beats, or timecode
         target_format (string): The output of the function as either a number of video frames or timecode
@@ -70,17 +87,16 @@ def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm, f
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert MIDI ticks or timecode to video frames or timecode')
-    parser.add_argument('-i', '--input', type=str, required=True, choices=["ticks", "beats", "timecode"], help='Input '
-                                                                                                               'format')
+    parser.add_argument('-i', '--input', type=str, required=True,
+                        choices=["ticks", "beats", "timecode"], help='Input format')
     parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode"], help='Output format')
-    parser.add_argument('-iv', '--input_value', type=ticks_or_timecode, required=True, help='Number of MIDI ticks or '
-                                                                                            'timecode in hh:mm:ss.mmm '
-                                                                                            'format')
+    parser.add_argument('-iv', '--input_value', type=ticks_or_timecode, required=True,
+                        help='Number of MIDI ticks, specific musical beat, or timecode in hh:mm:ss.sss format')
     parser.add_argument('-b', '--bpm', type=float, required=True, help='Beats per minute of the song')
     parser.add_argument('-f', '--fps', type=float, required=True, help='Frames per second of the video')
-    parser.add_argument('-tpb', '--ticks_per_beat', type=int, default=TPB, help='Number of ticks per beat (default is '
-                                                                                '480)')
-    parser.add_argument('-p', '--print', action='store_true', default=False, help='Print the output to the console')
+    parser.add_argument('-tpb', '--ticks_per_beat', type=int,
+                        default=TPB, help='Number of ticks per beat (default is 480)')
+    parser.add_argument('-p', '--print', action='store_true', help='Print the output to the console')
     args = parser.parse_args()
 
     convert_audio_to_video_timing(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
