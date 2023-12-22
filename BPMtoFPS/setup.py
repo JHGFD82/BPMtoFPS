@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     author="Jeff Heller (JHGFD)",
     author_email="jeffheller@jhgfd.com",
-    description=("Convert time in a musical composition to time in a video timeline. "
+    description=("Convert time in a musical composition to time in a video production. "
                  "This package has tools to take either a specific beat or point in time and "
                  "converts it to a video timecode or number of frames based on the beats per "
                  "minute of the song and the frames per second of the video."),
