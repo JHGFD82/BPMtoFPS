@@ -33,13 +33,13 @@ def seconds_to_timecode(seconds, fps):
     return f"{math.floor(seconds)}:{math.floor(seconds % 1 * fps):02d}"
 
 
-def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, ticks_per_beat=TPB, do_print=False):
+def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm, fps, ticks_per_beat=TPB, do_print=False):
     """
     Convert some form of audio timing (either MIDI ticks or timecode) to a video format (either video frames or
     timecode).
     Parameters:
-        in_format (string): The input of the function as either a number of ticks or timecode
-        out_format (string): The output of the function as either a number of video frames or timecode
+        ref_format (string): The input of the function as either a number of ticks, beats, or timecode
+        target_format (string): The output of the function as either a number of video frames or timecode
         input_value (string/int): The number of ticks or the timecode to be processed, based on the input provided
         bpm (float): The beats per minute
         fps (float): The frames per second
@@ -48,17 +48,19 @@ def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, 
     Returns:
         The frame number at which the note occurs
     """
-    if in_format == 'ticks':
-        seconds = ticks_to_seconds(input_value, bpm, ticks_per_beat)
-    elif in_format == 'beats':
-        seconds = beats_to_seconds(input_value, bpm)
-    elif in_format == 'timecode':
-        seconds = timecode_to_seconds(input_value)
+    in_conversion_map = {
+        'ticks': lambda value: ticks_to_seconds(value, bpm, ticks_per_beat),
+        'beats': lambda value: beats_to_seconds(value, bpm),
+        'timecode': lambda value: timecode_to_seconds(value)
+    }
 
-    if out_format == 'frames':
-        output = seconds_to_frames(seconds, fps)
-    elif out_format == 'timecode':
-        output = seconds_to_timecode(seconds, fps)
+    out_conversion_map = {
+        'frames': lambda seconds: seconds_to_frames(seconds, fps),
+        'timecode': lambda seconds: seconds_to_timecode(seconds, fps)
+    }
+
+    seconds = in_conversion_map[ref_format](input_value)
+    output = out_conversion_map[target_format](seconds)
 
     if do_print:
         print(output)
