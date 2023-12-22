@@ -16,6 +16,10 @@ def ticks_to_seconds(input_value, bpm, ticks_per_beat):
     return input_value / ticks_per_beat / bpm * SPM
 
 
+def beats_to_seconds(input_value, bpm):
+    return input_value / bpm * SPM
+
+
 def timecode_to_seconds(input_value):
     minutes, seconds = map(float, input_value.split(':'))
     return minutes * SPM + seconds
@@ -46,6 +50,8 @@ def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, 
     """
     if in_format == 'ticks':
         seconds = ticks_to_seconds(input_value, bpm, ticks_per_beat)
+    elif in_format == 'beats':
+        seconds = beats_to_seconds(input_value, bpm)
     elif in_format == 'timecode':
         seconds = timecode_to_seconds(input_value)
 
@@ -62,7 +68,8 @@ def convert_audio_to_video_timing(in_format, out_format, input_value, bpm, fps, 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert MIDI ticks or timecode to video frames or timecode')
-    parser.add_argument('-i', '--input', type=str, required=True, choices=["ticks", "timecode"], help='Input format')
+    parser.add_argument('-i', '--input', type=str, required=True, choices=["ticks", "beats", "timecode"], help='Input '
+                                                                                                               'format')
     parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode"], help='Output format')
     parser.add_argument('-iv', '--input_value', type=ticks_or_timecode, required=True, help='Number of MIDI ticks or '
                                                                                             'timecode in hh:mm:ss.mmm '
