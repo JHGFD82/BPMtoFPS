@@ -65,19 +65,42 @@ def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm, f
     Returns:
         The frame number at which the note occurs
     """
+    def handle_ticks(value):
+        if bpm is None:
+            raise ValueError("bpm needed for 'ticks' conversion")
+        return ticks_to_seconds(value, bpm, ticks_per_beat)
+
+    def handle_beats(value):
+        if bpm is None:
+            raise ValueError("bpm needed for 'beats' conversion")
+        return beats_to_seconds(value, bpm)
+
+    def frames_handler(seconds):
+        if fps is None:
+            raise ValueError("fps needed for 'frames' conversion")
+        return seconds_to_frames(seconds, fps)
+
+    def timecode_handler(seconds):
+        if fps is None:
+            raise ValueError("fps needed for 'timecode' conversion")
+        return seconds_to_timecode(seconds, fps)
+
     in_conversion_map = {
-        'ticks': lambda value: ticks_to_seconds(value, bpm, ticks_per_beat),
-        'beats': lambda value: beats_to_seconds(value, bpm),
+        'ticks': handle_ticks,
+        'beats': handle_beats,
         'timecode': lambda value: timecode_to_seconds(value)
     }
 
     out_conversion_map = {
-        'frames': lambda seconds: seconds_to_frames(seconds, fps),
-        'timecode': lambda seconds: seconds_to_timecode(seconds, fps)
+        'frames': frames_handler,
+        'timecode': timecode_handler
     }
 
-    seconds = in_conversion_map[ref_format](input_value)
-    output = out_conversion_map[target_format](seconds)
+    try:
+        seconds = in_conversion_map[ref_format](input_value)
+        output = out_conversion_map[target_format](seconds)
+    except Exception as err:
+        raise ValueError(f"An error occurred during conversion: {err}")
 
     if do_print:
         print(output)
