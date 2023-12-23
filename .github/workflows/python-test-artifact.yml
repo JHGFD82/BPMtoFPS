@@ -1,5 +1,5 @@
 # This workflow will test the package against multiple versions of Python and archive test results as artifacts.
-name: Python package
+name: Python Test and Upload Artifact
 
 on: [push]
 
