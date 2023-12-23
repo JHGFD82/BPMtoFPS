@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="BPMtoFPS",
-    version="0.1.0",
+    version="1.0.0",
     packages=find_packages(),
     author="Jeff Heller (JHGFD)",
     author_email="jeffheller@jhgfd.com",
@@ -15,7 +15,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     classifiers=[
-        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
         "Topic :: Multimedia :: Sound/Audio",
