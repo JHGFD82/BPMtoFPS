@@ -1,3 +1,24 @@
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "BPMtoFPS"
+version = "0.1.0"
+authors = [
+  { name="Jeff Heller (JHGFD)", email="jeffheller@jhgfd.com" },
+]
+description = "Convert time in a musical composition to time in a video production."
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Video"
+]
+
+[project.urls]
+Homepage = "https://github.com/JHGFD82/BPMtoFPS"
+Issues = "https://github.com/JHGFD82/BPMtoFPS/issues"
