@@ -18,8 +18,9 @@ jobs:
 
       - name: build release distributions
         run: |
-          python3 -m pip install setuptools
-          python3 -m build
+          python -m pip install --upgrade pip
+          python install setuptools wheel twine
+          python -m build
 
       - name: upload dists
         uses: actions/upload-artifact@v3
