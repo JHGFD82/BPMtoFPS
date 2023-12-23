@@ -50,10 +50,11 @@ def seconds_to_timecode(seconds, fps):
     return f"{math.floor(seconds)}:{math.floor(seconds % 1 * fps):02d}"
 
 
-def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm, fps, ticks_per_beat=TPB, do_print=False):
+def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm=None, fps=None,
+                                  ticks_per_beat=TPB, do_print=False):
     """
-    The main function of BPMtoFPS. Convert some form of audio timing (either MIDI ticks or timecode) to a video format
-    (either video frames or timecode).
+    The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, or timecode) to a video
+    format (either video frames or timecode).
     Parameters:
         ref_format (string): The input of the function as either a number of ticks, beats, or timecode
         target_format (string): The output of the function as either a number of video frames or timecode
