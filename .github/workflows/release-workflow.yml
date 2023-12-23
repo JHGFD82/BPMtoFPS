@@ -18,7 +18,7 @@ jobs:
 
       - name: build release distributions
         run: |
-          python -m build
+          python3 -m build
 
       - name: upload dists
         uses: actions/upload-artifact@v3
