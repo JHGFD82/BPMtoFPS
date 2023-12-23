@@ -1,4 +1,10 @@
 # This workflow builds the BPMtoFPS package and automatically uploads package to PyPI.
+name: Package Build and Publish to PyPI
+
+on:
+  release:
+    types: [created]
+
 jobs:
   release-build:
     runs-on: ubuntu-latest
