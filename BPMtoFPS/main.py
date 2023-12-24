@@ -51,7 +51,7 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
 
     Required Parameters:
         ref_format (string): The input of the function as either a number of ticks, beats, or timecode
-        target_format (string): The output of the function as either a number of video frames or timecode
+        target_format (string): The output of the function as either a number of video frames, timecode, or both
         input_value (string/int): The number of ticks or the timecode to be processed, based on the input provided
         fps (float): The frames per second of the video project
 
@@ -61,7 +61,8 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
         do_print (bool): If true, print the result to the console
 
     Returns:
-        The frame number at which the note occurs
+        Depending on the target_format, this function returns either the number of frames in the video as an
+        integer, the specific timecode in the video as string, or both as a tuple.
     """
 
     if isinstance(input_value, float):
