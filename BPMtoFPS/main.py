@@ -17,7 +17,7 @@ def ticks_or_timecode(value):
     """
     if isinstance(value, float):  # To catch case when an input is float and it's not timecode
         raise ValueError("Input must be a string for timecodes or an integer for beats and ticks. Floats are not "
-                         "accepted.")
+                         "accepted. If inputting timecode for seconds, a leading zero is required (ex. 0:45.325)")
     try:
         # Presence of ":" indicates this should be a timecode, so keep it as string
         if ":" in value:
