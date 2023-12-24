@@ -100,7 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode", "both"],
                         help='Output format ("both" will output frames and timecode in a tuple)')
     parser.add_argument('-iv', '--input_value', type=str, required=True,
-                        help='Number of MIDI ticks, specific musical beat, or timecode in hh:mm:ss.sss format')
+                        help='Number of MIDI ticks, specific musical beat, or timecode in mm:ss.sss or ss.sss format')
     parser.add_argument('-b', '--bpm', type=float,
                         help='Beats per minute of the song, not required if inputting timecode')
     parser.add_argument('-f', '--fps', type=float, required=True, help='Frames per second of the video')
