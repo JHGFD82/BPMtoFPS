@@ -18,12 +18,27 @@ def timecode_to_seconds(input_value):
     return minutes * SPM + seconds
 
 
-def seconds_to_frames(seconds, fps):
-    return math.floor(seconds * fps)
+def calculate_frame_count(seconds, fps):
+    frame_count = seconds * fps
+    whole_frames = math.floor(frame_count)
+    fractional_frames = frame_count % 1
+
+    if fractional_frames >= 0.75:
+        whole_frames += 1
+
+    return whole_frames
 
 
-def seconds_to_timecode(seconds, fps):
-    return f"{math.floor(seconds)}:{math.floor(seconds % 1 * fps):02d}"
+def seconds_to_frames_unified(seconds, fps):
+    return calculate_frame_count(seconds, fps)
+
+
+def seconds_to_timecode_unified(seconds, fps):
+    whole_frames = calculate_frame_count(seconds, fps)
+    whole_seconds = math.floor(seconds)
+    frame_part = int(whole_frames - whole_seconds * fps)
+
+    return f"{whole_seconds}:{frame_part:02d}"
 
 
 def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, ticks_per_beat=TPB, do_print=False):
@@ -64,11 +79,16 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
         'timecode': timecode_to_seconds
     }
     out_conversion_map = {
+        'frames': seconds_to_frames_unified,
+        'timecode': seconds_to_timecode_unified
     }
 
     try:
         seconds = in_conversion_map[ref_format](input_value)
-        output = out_conversion_map[target_format](seconds)
+        if target_format == 'both':
+            output = (out_conversion_map['frames'](seconds, fps), out_conversion_map['timecode'](seconds, fps))
+        else:
+            output = out_conversion_map[target_format](seconds, fps)
     except Exception as err:
         raise ValueError(f"An error occurred during conversion: {err}")
 
