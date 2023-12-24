@@ -29,11 +29,11 @@ def calculate_frame_count(seconds, fps):
     return whole_frames
 
 
-def seconds_to_frames_unified(seconds, fps):
+def seconds_to_frames(seconds, fps):
     return calculate_frame_count(seconds, fps)
 
 
-def seconds_to_timecode_unified(seconds, fps):
+def seconds_to_timecode(seconds, fps):
     whole_frames = calculate_frame_count(seconds, fps)
     whole_seconds = math.floor(seconds)
     frame_part = int(whole_frames - whole_seconds * fps)
@@ -79,8 +79,8 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
         'timecode': timecode_to_seconds
     }
     out_conversion_map = {
-        'frames': seconds_to_frames_unified,
-        'timecode': seconds_to_timecode_unified
+        'frames': seconds_to_frames,
+        'timecode': seconds_to_timecode
     }
 
     try:
