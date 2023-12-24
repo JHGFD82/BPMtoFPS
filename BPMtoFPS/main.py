@@ -70,46 +70,36 @@ def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm=No
     Returns:
         The frame number at which the note occurs
     """
-    def handle_ticks(value):
-        if bpm is None:
-            raise ValueError("bpm needed for 'ticks' conversion")
-        return ticks_to_seconds(value, bpm, ticks_per_beat)
-
-    def handle_beats(value):
-        if bpm is None:
-            raise ValueError("bpm needed for 'beats' conversion")
-        return beats_to_seconds(value, bpm)
-
-    def frames_handler(seconds):
-        if fps is None:
-            raise ValueError("fps needed for 'frames' conversion")
-        return seconds_to_frames(seconds, fps)
-
-    def timecode_handler(seconds):
-        if fps is None:
-            raise ValueError("fps needed for 'timecode' conversion")
-        return seconds_to_timecode(seconds, fps)
 
     in_conversion_map = {
-        'ticks': handle_ticks,
-        'beats': handle_beats,
-        'timecode': lambda value: timecode_to_seconds(value)
+        'ticks': ticks_to_seconds,
+        'beats': beats_to_seconds,
+        'timecode': timecode_to_seconds
     }
-
     out_conversion_map = {
-        'frames': frames_handler,
-        'timecode': timecode_handler
+        'frames': seconds_to_frames,
+        'timecode': seconds_to_timecode,
     }
 
-    try:
-        seconds = in_conversion_map[ref_format](input_value)
-        output = out_conversion_map[target_format](seconds)
-    except Exception as err:
-        raise ValueError(f"An error occurred during conversion: {err}")
+    func_in = in_conversion_map.get(ref_format)
+    if not func_in:
+        raise ValueError(f"Invalid reference format '{ref_format}'. Must be one of {list(in_conversion_map.keys())}")
+
+    seconds = func_in(input_value, bpm, ticks_per_beat)
+
+    if target_format == 'both':
+        output_frames = out_conversion_map['frames'](copy.copy(seconds), fps)
+        output_timecode = out_conversion_map['timecode'](copy.copy(seconds), fps)
+        output = output_frames, output_timecode
+    else:
+        func_out = out_conversion_map.get(target_format)
+        if func_out is None:
+            raise ValueError(
+                f"Invalid target format '{target_format}'. Must be one of {list(out_conversion_map.keys())}")
+        output = func_out(seconds, fps)
 
     if do_print:
         print(output)
-
     return output
 
 
