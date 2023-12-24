@@ -50,8 +50,7 @@ def seconds_to_timecode(seconds, fps):
     return f"{math.floor(seconds)}:{math.floor(seconds % 1 * fps):02d}"
 
 
-def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm=None, fps=None,
-                                  ticks_per_beat=TPB, do_print=False):
+def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, ticks_per_beat=TPB, do_print=False):
     """
     The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, or timecode) to a video
     format (either video frames or timecode).
@@ -129,8 +128,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--print', action='store_true', help='Print the output to the console')
     args = parser.parse_args()
 
-    convert_audio_to_video_timing(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
-                                  args.print)
+    convert_time(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
+                 args.print)
 
     if args.input == 'ticks' and args.bpm is None:
         parser.error("-b/--bpm is required when -i/--input is 'ticks'")

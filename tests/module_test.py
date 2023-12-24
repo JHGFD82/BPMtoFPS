@@ -6,7 +6,7 @@ from BPMtoFPS.main import (
     timecode_to_seconds,
     seconds_to_frames,
     seconds_to_timecode,
-    convert_audio_to_video_timing
+    convert_time
 )
 
 
@@ -42,4 +42,4 @@ def test_seconds_to_timecode():
 
 def test_convert_audio_to_video_timing():
     # Add test cases for convert_audio_to_video_timing function
-    assert convert_audio_to_video_timing('ticks', 'timecode', 240, 192, 29.97) == '0:04'
+    assert convert_time('ticks', 'timecode', 240, 192, 29.97) == '0:04'
