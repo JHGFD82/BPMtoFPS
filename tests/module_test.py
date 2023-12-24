@@ -52,5 +52,5 @@ def test_convert_time_ticks_both():
                         ticks_per_beat=360) == (100, '3:10')
 
 
-def test_convert_timecode_ticks_both():
+def test_convert_time_timecode_both():
     assert convert_time('timecode', 'both', '0:45.59', fps=29.97) == (1366, '45:17')
