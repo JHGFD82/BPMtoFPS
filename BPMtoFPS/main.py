@@ -5,30 +5,6 @@ TPB = 480  # Ticks per beat (resolution)
 SPM = 60  # Seconds per minute
 
 
-def ticks_or_timecode(value):
-    """
-    Ensure that the supplied string is either valid timecode or integer.
-    Parameters:
-        value (string/int): The text to be analyzed
-    Returns:
-        The text as either a string or an integer based on the appearance of the ':' in the string.
-    Raises:
-        ValueError: If the value cannot be converted to integer (for beats and ticks) or isn't a string (for timecodes)
-    """
-    if isinstance(value, float):  # To catch case when an input is float and it's not timecode
-        raise ValueError("Input must be a string for timecodes or an integer for beats and ticks. Floats are not "
-                         "accepted. If inputting timecode for seconds, a leading zero is required (ex. 0:45.325)")
-    try:
-        # Presence of ":" indicates this should be a timecode, so keep it as string
-        if ":" in value:
-            return value
-        # Otherwise, try to convert to an integer for beats and ticks
-        else:
-            return int(value)
-    except (ValueError, TypeError) as e:
-        raise ValueError("Input must be a string for timecodes or an integer for beats and ticks") from e
-
-
 def ticks_to_seconds(input_value, bpm, ticks_per_beat):
     return input_value / ticks_per_beat / bpm * SPM
 
@@ -89,6 +65,18 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
             raise ValueError("fps needed for 'timecode' conversion")
         return seconds_to_timecode(seconds, fps)
 
+    if isinstance(input_value, float):
+        raise ValueError(
+            "Input must be a string for timecodes or an integer for beats and ticks. Floats are not accepted.")
+
+    if ":" in str(input_value):
+        input_value = str(input_value)
+    else:
+        try:
+            input_value = int(input_value)
+        except ValueError:
+            raise ValueError("Input must be a string for timecodes or an integer for beats and ticks.")
+
     in_conversion_map = {
         'ticks': handle_ticks,
         'beats': handle_beats,
@@ -118,7 +106,7 @@ if __name__ == '__main__':
                         help='Input format')
     parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode", "both"],
                         help='Output format ("both" will output frames and timecode in a tuple)')
-    parser.add_argument('-iv', '--input_value', type=ticks_or_timecode, required=True,
+    parser.add_argument('-iv', '--input_value', type=str, required=True,
                         help='Number of MIDI ticks, specific musical beat, or timecode in hh:mm:ss.sss format')
     parser.add_argument('-b', '--bpm', type=float,
                         help='Beats per minute of the song, not required if inputting timecode')
