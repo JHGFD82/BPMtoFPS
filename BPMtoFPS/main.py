@@ -115,17 +115,24 @@ def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm=No
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert MIDI ticks or timecode to video frames or timecode')
-    parser.add_argument('-i', '--input', type=str, required=True,
-                        choices=["ticks", "beats", "timecode"], help='Input format')
-    parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode"], help='Output format')
+    parser.add_argument('-i', '--input', type=str, required=True, choices=["ticks", "beats", "timecode"],
+                        help='Input format')
+    parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode", "both"],
+                        help='Output format ("both" will output frames and timecode in a tuple)')
     parser.add_argument('-iv', '--input_value', type=ticks_or_timecode, required=True,
                         help='Number of MIDI ticks, specific musical beat, or timecode in hh:mm:ss.sss format')
-    parser.add_argument('-b', '--bpm', type=float, required=True, help='Beats per minute of the song')
+    parser.add_argument('-b', '--bpm', type=float,
+                        help='Beats per minute of the song, not required if inputting timecode')
     parser.add_argument('-f', '--fps', type=float, required=True, help='Frames per second of the video')
-    parser.add_argument('-tpb', '--ticks_per_beat', type=int,
-                        default=TPB, help='Number of ticks per beat (default is 480)')
+    parser.add_argument('-tpb', '--ticks_per_beat', type=int, default=TPB,
+                        help='Number of ticks per beat (default is 480)')
     parser.add_argument('-p', '--print', action='store_true', help='Print the output to the console')
     args = parser.parse_args()
 
     convert_audio_to_video_timing(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
                                   args.print)
+
+    if args.input == 'ticks' and args.bpm is None:
+        parser.error("-b/--bpm is required when -i/--input is 'ticks'")
+    elif args.input == 'beats' and args.bpm is None:
+        parser.error("-b/--bpm is required when -i/--input is 'beats'")
