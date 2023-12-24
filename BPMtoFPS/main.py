@@ -14,8 +14,11 @@ def beats_to_seconds(input_value, bpm):
 
 
 def timecode_to_seconds(input_value):
-    minutes, seconds = map(float, input_value.split(':'))
-    return minutes * SPM + seconds
+    if ':' in input_value:
+        minutes, seconds = map(float, input_value.split(':'))
+        return minutes * SPM + seconds
+    else:
+        return float(input_value)
 
 
 def calculate_frame_count(seconds, fps):
@@ -64,14 +67,6 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
     if isinstance(input_value, float):
         raise ValueError(
             "Input must be a string for timecodes or an integer for beats and ticks. Floats are not accepted.")
-
-    if ":" in str(input_value):
-        input_value = str(input_value)
-    else:
-        try:
-            input_value = int(input_value)
-        except ValueError:
-            raise ValueError("Input must be a string for timecodes or an integer for beats and ticks.")
 
     in_conversion_map = {
         'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
