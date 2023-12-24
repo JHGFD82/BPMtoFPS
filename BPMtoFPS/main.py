@@ -65,8 +65,18 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
     """
 
     if isinstance(input_value, float):
-        raise ValueError(
-            "Input must be a string for timecodes or an integer for beats and ticks. Floats are not accepted.")
+        raise ValueError("Input must be a string for timecodes or an integer for beats and ticks. Floats are not "
+                         "accepted.")
+
+    # Convert input value to appropriate type based on ref_format
+    if ref_format in ['ticks', 'beats']:
+        try:
+            input_value = int(input_value)
+        except ValueError:
+            raise ValueError("Input for ticks and beats must be an integer.")
+    elif ref_format == 'timecode':
+        # No conversion needed, handled in timecode_to_seconds function
+        pass
 
     in_conversion_map = {
         'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
