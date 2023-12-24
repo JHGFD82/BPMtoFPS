@@ -45,25 +45,6 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
     Returns:
         The frame number at which the note occurs
     """
-    def handle_ticks(value):
-        if bpm is None:
-            raise ValueError("bpm needed for 'ticks' conversion")
-        return ticks_to_seconds(value, bpm, ticks_per_beat)
-
-    def handle_beats(value):
-        if bpm is None:
-            raise ValueError("bpm needed for 'beats' conversion")
-        return beats_to_seconds(value, bpm)
-
-    def frames_handler(seconds):
-        if fps is None:
-            raise ValueError("fps needed for 'frames' conversion")
-        return seconds_to_frames(seconds, fps)
-
-    def timecode_handler(seconds):
-        if fps is None:
-            raise ValueError("fps needed for 'timecode' conversion")
-        return seconds_to_timecode(seconds, fps)
 
     if isinstance(input_value, float):
         raise ValueError(
@@ -78,14 +59,11 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
             raise ValueError("Input must be a string for timecodes or an integer for beats and ticks.")
 
     in_conversion_map = {
-        'ticks': handle_ticks,
-        'beats': handle_beats,
-        'timecode': lambda value: timecode_to_seconds(value)
+        'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
+        'beats': lambda x: beats_to_seconds(x, bpm),
+        'timecode': timecode_to_seconds
     }
-
     out_conversion_map = {
-        'frames': frames_handler,
-        'timecode': timecode_handler
     }
 
     try:
