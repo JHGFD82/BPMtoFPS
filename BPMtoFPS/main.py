@@ -55,14 +55,18 @@ def convert_audio_to_video_timing(ref_format, target_format, input_value, bpm=No
     """
     The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, or timecode) to a video
     format (either video frames or timecode).
-    Parameters:
+
+    Required Parameters:
         ref_format (string): The input of the function as either a number of ticks, beats, or timecode
         target_format (string): The output of the function as either a number of video frames or timecode
         input_value (string/int): The number of ticks or the timecode to be processed, based on the input provided
-        bpm (float): The beats per minute
-        fps (float): The frames per second
+        fps (float): The frames per second of the video project
+
+    Optional Parameters:
+        bpm (float): The beats per minute, not required if inputting timecode
         ticks_per_beat (int): The number of ticks per beat
         do_print (bool): If true, print the result to the console
+
     Returns:
         The frame number at which the note occurs
     """
