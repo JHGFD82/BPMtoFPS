@@ -3,6 +3,7 @@ import argparse
 
 TPB = 480  # Ticks per beat (resolution)
 SPM = 60  # Seconds per minute
+fraction = 0.75  # The threshold for rounding
 
 
 def ticks_to_seconds(input_value, bpm, ticks_per_beat):
@@ -79,7 +80,7 @@ def calculate_frame_count(seconds, fps, frac=fraction):
     whole_frames = math.floor(frame_count)
     fractional_frames = frame_count % 1
 
-    if fractional_frames >= 0.75:
+    if fractional_frames >= frac:
         whole_frames += 1
 
     return whole_frames
