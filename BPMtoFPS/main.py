@@ -157,10 +157,11 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
             input_value = int(input_value)
         except ValueError:
             raise ValueError("Input for ticks and beats must be an integer.")
-    elif ref_format == 'timecode':
-        # No conversion needed, handled in timecode_to_seconds function
-        pass
+    else:
+        input_value = str(input_value)
+    # No conversion needed here for timecode, but instead ensure that the value is passed through as string.
 
+    # Conversion maps to functions
     in_conversion_map = {
         'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
         'beats': lambda x: beats_to_seconds(x, bpm),
