@@ -25,7 +25,7 @@ def test_timecode_to_seconds():
 
 def test_seconds_to_frames():
     # Example test case. Adjust according to your function's logic.
-    assert seconds_to_frames(1, 30) == 30
+    assert seconds_to_frames(44.4, 29.97, frac=0.65) == 1331
 
 
 def test_seconds_to_timecode():
