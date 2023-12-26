@@ -27,3 +27,88 @@ returns `50:36`
 returns `37:07`
 4. `convert time('ticks', 'both', 3840, bpm=192, fps=29.97, ticks_per_beat=360)`
 returns `(100, '3:10')`
+
+## Handy Features
+
+### Custom Fraction
+With v1.2.0, you can provide your own threshold for when a resulting decimal in a frame number should be rounded up or down. Because audio has exponentially granular timing in comparison to video (to the tune of 360 or 480 ticks per second with MIDI, or 44,100 or 48,000 samples per second with recorded audio), video editors have to compensate for this by choosing where to place an action on the timeline, either at the frame before or after the exact moment occurs in the audio. By default, BPMtoFPS enforces a 0.75 threshold, so an action occuring at 4:33.67 (4 seconds, 33 frames, and... 67) will be rounded down to 4:33, whereas traditional rouding (0.5) would have rounded up to 4:34. This is *purely personal preference* and has generally been the threshold I use for my own projects. You can supply your own using the specific functions detailed below (look for the new "fraction" parameter.
+
+### Direct Access to Conversion Functions
+In addition to custom rounding, if you know what you're doing, you can skip past the mumbo jumbo of the main convert_time() function and instead go directly to the conversion functions themselves. There are two sets of functions that you can access directly:
+
+#### Input Functions
+`ticks_to_seconds(input_value, bpm, ticks_per_beat)`
+
+    Convert ticks to seconds
+
+    Parameters:
+        input_value (int): The value to convert
+        bpm (int): The beats per minute of the piece of music
+        ticks_per_beat (int): The number of ticks per quarter note (default is 480)
+
+    Arithmetic:
+        seconds = input_value / ticks_per_beat / bpm * 60 seconds per minute
+
+    Returns:
+         Total number of seconds
+`beats_to_seconds(input_value, bpm)`
+
+    Convert beats to seconds
+
+    Parameters:
+        input_value (int): The value to convert
+        bpm (int): The beats per minute of the piece of music
+
+    Arithmetic:
+        seconds = input_value / bpm * 60 seconds per minute
+
+    Returns:
+        Total number of seconds
+`timecode_to_seconds(input_value)`
+
+    Convert timecode to seconds
+
+    Parameters:
+        input_value (int): The value to convert
+
+    Arithmetic:
+        seconds = minutes of timecode * 60 seconds per minute + seconds of timecode
+
+    Returns:
+        Total number of seconds
+
+#### Output Functions
+
+`seconds_to_frames(seconds, fps, frac=fraction)`
+
+    Convert sections to frames
+
+    Parameters:
+        seconds (int): The number of seconds
+        fps (int): The number of frames per second in a video project
+        frac (float): The threshold for rounding
+
+    Arithmetic:
+        frames = (seconds * fps) rounded depending on decimal vs. fraction
+
+    Returns:
+        Total number of frames
+
+`seconds_to_timecode(seconds, fps, frac=fraction)`
+
+    Convert seconds to timecode
+
+    Parameters:
+        seconds (int): The number of seconds
+        fps (int): The number of frames per second in a video project
+        frac (float): The threshold for rounding
+
+    Arithmetic:
+        timecode = string(total frames + ":" + total frames - seconds * fps)
+
+    Returns:
+        Timecode as string
+
+### Command-line Execution
+
+To be detailed here soon!
