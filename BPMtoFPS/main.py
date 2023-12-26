@@ -175,7 +175,8 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
     try:
         seconds = in_conversion_map[ref_format](input_value)
         if target_format == 'both':
-            output = (out_conversion_map['frames'](seconds, fps), out_conversion_map['timecode'](seconds, fps))
+            output = (out_conversion_map['frames'](seconds, fps, fraction),
+                      out_conversion_map['timecode'](seconds, fps, fraction))
         else:
             output = out_conversion_map[target_format](seconds, fps)
     except Exception as err:
