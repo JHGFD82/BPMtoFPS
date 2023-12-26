@@ -189,20 +189,31 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert MIDI ticks or timecode to video frames or timecode')
-    parser.add_argument('-i', '--input', type=str, required=True, choices=["ticks", "beats", "timecode"],
-                        help='Input format')
-    parser.add_argument('-o', '--output', type=str, required=True, choices=["frames", "timecode", "both"],
-                        help='Output format ("both" will output frames and timecode in a tuple)')
-    parser.add_argument('-iv', '--input_value', type=str, required=True,
-                        help='Number of MIDI ticks, specific musical beat, or timecode in mm:ss.sss or ss.sss format')
-    parser.add_argument('-b', '--bpm', type=float,
-                        help='Beats per minute of the song, not required if inputting timecode')
-    parser.add_argument('-f', '--fps', type=float, required=True, help='Frames per second of the video')
-    parser.add_argument('-tpb', '--ticks_per_beat', type=int, default=TPB,
-                        help='Number of ticks per beat (default is 480)')
-    parser.add_argument('-p', '--print', action='store_true', help='Print the output to the console')
-    args = parser.parse_args()
 
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument('-m', '--ticks', dest='input_type', action='store_const', const='m',
+                             help='Input is MIDI ticks')
+    input_group.add_argument('-b', '--beats', dest='input_type', action='store_const', const='b',
+                             help='Input is beats')
+    input_group.add_argument('-t', '--timecode', dest='input_type', action='store_const', const='t',
+                             help='Input is timecode')
+
+    parser.add_argument('-f', '--frames', dest='output_types', action='append_const', const='f',
+                        help='Output as frames')
+    parser.add_argument('-c', '--timecode_output', dest='output_types', action='append_const', const='c',
+                        help='Output as timecode')
+
+    parser.add_argument('-i', '--input_value', type=str, required=True,
+                        help='Input value (number of ticks, beats, or timecode)')
+    parser.add_argument('-p', '--bpm', type=float,
+                        help='Beats per minute, required if inputting ticks or beats')
+    parser.add_argument('-r', '--fps', type=float, required=True,
+                        help='Frames per second of the video')
+    parser.add_argument('-d', '--division', type=int, default=TPB,
+                        help='Number of MIDI ticks per beat (division), default is 480')
+    parser.add_argument('--print', action='store_true', help='Print the output to the console')
+
+    args = parser.parse_args()
     convert_time(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
                  args.print)
 
