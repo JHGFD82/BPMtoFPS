@@ -25,7 +25,7 @@ def test_timecode_to_seconds():
 
 
 def test_calculate_frame_count():
-    assert calculate_frame_count(106, 29.97) == 3177
+    assert calculate_frame_count(106, 29.97, .85) == 3176
 
 
 def test_seconds_to_frames():
