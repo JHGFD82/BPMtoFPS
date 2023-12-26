@@ -147,11 +147,13 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
         integer, the specific timecode in the video as string, or both as a tuple.
     """
 
+    # Do not allow floats under any circumstances. While timecode can have a float in seconds, it must be entered as
+    # string.
     if isinstance(input_value, float):
         raise ValueError("Input must be a string for timecodes or an integer for beats and ticks. Floats are not "
                          "accepted.")
 
-    # Convert input value to appropriate type based on ref_format
+    # Convert input value to integer if 'ticks' or 'beats' is specified.
     if ref_format in ['ticks', 'beats']:
         try:
             input_value = int(input_value)
@@ -172,6 +174,7 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
         'timecode': seconds_to_timecode
     }
 
+    # Attempt conversion, using conversion maps to navigate to proper function
     try:
         seconds = in_conversion_map[ref_format](input_value)
         if target_format == 'both':
@@ -182,6 +185,7 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
     except Exception as err:
         raise ValueError(f"An error occurred during conversion: {err}")
 
+    # Print results if requested
     if do_print:
         print(output)
 
@@ -218,6 +222,7 @@ if __name__ == '__main__':
     convert_time(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
                  args.print)
 
+    # Since BPM is not required for timecode, catch errors if it's not supplied for other inputs
     if args.input == 'ticks' and args.bpm is None:
         parser.error("-b/--bpm is required when -i/--input is 'ticks'")
     elif args.input == 'beats' and args.bpm is None:
