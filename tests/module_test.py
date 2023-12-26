@@ -3,7 +3,6 @@ from BPMtoFPS.main import (
     ticks_to_seconds,
     beats_to_seconds,
     timecode_to_seconds,
-    calculate_frame_count,
     seconds_to_frames,
     seconds_to_timecode,
     convert_time
@@ -22,10 +21,6 @@ def test_beats_to_timecode():
 def test_timecode_to_seconds():
     # Example test case. Adjust according to your function's logic.
     assert timecode_to_seconds("1:00") == 60
-
-
-def test_calculate_frame_count():
-    assert calculate_frame_count(106, 29.97, .85) == 3176
 
 
 def test_seconds_to_frames():

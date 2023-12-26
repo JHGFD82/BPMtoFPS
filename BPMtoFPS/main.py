@@ -61,34 +61,9 @@ def timecode_to_seconds(input_value):
         return float(input_value)
 
 
-def calculate_frame_count(seconds, fps, frac=fraction):
-    """
-    Calculate frame count for supplied seconds, with custom rounding based on fraction parameter
-
-    Parameters:
-        seconds (int): The seconds to convert to frames
-        fps (int): The frames per second of the video project
-        frac (float): The threshold for rounding
-
-    Arithmetic:
-        frames = round by fraction(seconds * fps)
-
-    Returns:
-        Total number of frames
-    """
-    frame_count = seconds * fps
-    whole_frames = math.floor(frame_count)
-    fractional_frames = frame_count % 1
-
-    if fractional_frames >= frac:
-        whole_frames += 1
-
-    return whole_frames
-
-
 def seconds_to_frames(seconds, fps, frac=fraction):
     """
-    Convert sections to frames
+    Convert seconds to frames
 
     Parameters:
         seconds (int): The number of seconds
@@ -101,7 +76,14 @@ def seconds_to_frames(seconds, fps, frac=fraction):
     Returns:
         Total number of frames
     """
-    return calculate_frame_count(seconds, fps, frac)
+    frame_count = seconds * fps
+    whole_frames = math.floor(frame_count)
+    fractional_frames = frame_count % 1
+
+    if fractional_frames >= frac:
+        whole_frames += 1
+
+    return whole_frames
 
 
 def seconds_to_timecode(seconds, fps, frac=fraction):
@@ -119,7 +101,7 @@ def seconds_to_timecode(seconds, fps, frac=fraction):
     Returns:
         Timecode as string
     """
-    whole_frames = calculate_frame_count(seconds, fps, frac)
+    whole_frames = seconds_to_frames(seconds, fps, frac)
     whole_seconds = math.floor(seconds)
     frame_part = int(whole_frames - whole_seconds * fps)
 
