@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="BPMtoFPS",
-    version="1.1.0",
+    version="1.2.0",
     packages=find_packages(),
     author="Jeff Heller (JHGFD)",
     author_email="jeffheller@jhgfd.com",
