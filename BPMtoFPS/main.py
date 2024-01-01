@@ -1,12 +1,13 @@
 import math
 import argparse
+from typing import Union, Optional, Tuple
 
 TPB = 480  # Ticks per beat (resolution)
 SPM = 60  # Seconds per minute
 fraction = 0.75  # The threshold for rounding
 
 
-def ticks_to_seconds(input_value, bpm, ticks_per_beat):
+def ticks_to_seconds(input_value: int, bpm: int, ticks_per_beat: int) -> float:
     """
     Convert ticks to seconds
 
@@ -24,7 +25,7 @@ def ticks_to_seconds(input_value, bpm, ticks_per_beat):
     return input_value / ticks_per_beat / bpm * SPM
 
 
-def beats_to_seconds(input_value, bpm):
+def beats_to_seconds(input_value: int, bpm: int) -> float:
     """
     Convert beats to seconds
 
@@ -41,7 +42,7 @@ def beats_to_seconds(input_value, bpm):
     return input_value / bpm * SPM
 
 
-def timecode_to_seconds(input_value):
+def timecode_to_seconds(input_value: str) -> float:
     """
     Convert timecode to seconds
 
@@ -86,7 +87,7 @@ def seconds_to_frames(seconds, fps, frac=fraction):
     return whole_frames
 
 
-def seconds_to_timecode(seconds, fps, frac=fraction):
+def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = fraction) -> str:
     """
     Convert seconds to timecode
 
@@ -108,7 +109,9 @@ def seconds_to_timecode(seconds, fps, frac=fraction):
     return f"{whole_seconds}:{frame_part:02d}"
 
 
-def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, ticks_per_beat=TPB, do_print=False):
+def convert_time(ref_format: str, target_format: str, input_value: Union[int, str],
+                 bpm: Optional[int] = None, fps: float = None,
+                 ticks_per_beat: int = TPB, do_print: bool = False) -> Union[int, str, Tuple]:
     """
     The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, or timecode) to a video
     format (either video frames or timecode).
