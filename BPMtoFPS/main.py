@@ -178,21 +178,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert MIDI ticks or timecode to video frames or timecode')
 
     input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument('-m', '--ticks', dest='input_type', action='store_const', const='m',
+    input_group.add_argument('-m', '--ticks', dest='input_type', action='store_const', const='ticks',
                              help='Input is MIDI ticks')
-    input_group.add_argument('-b', '--beats', dest='input_type', action='store_const', const='b',
+    input_group.add_argument('-b', '--beats', dest='input_type', action='store_const', const='beats',
                              help='Input is beats')
-    input_group.add_argument('-t', '--timecode', dest='input_type', action='store_const', const='t',
-                             help='Input is timecode')
+    input_group.add_argument('-t', '--timecode', dest='input_type', action='store_const', const='timecode',
+                             help='Input is timecode in mm:ss.sss format')
 
-    parser.add_argument('-f', '--frames', dest='output_types', action='append_const', const='f',
+    parser.add_argument('-f', '--frames', dest='output_types', action='append_const', const='frames',
                         help='Output as frames')
-    parser.add_argument('-c', '--timecode_output', dest='output_types', action='append_const', const='c',
+    parser.add_argument('-c', '--timecode_output', dest='output_types', action='append_const', const='timecode',
                         help='Output as timecode')
 
     parser.add_argument('-i', '--input_value', type=str, required=True,
                         help='Input value (number of ticks, beats, or timecode)')
-    parser.add_argument('-p', '--bpm', type=float,
+    parser.add_argument('-p', '--bpm', type=int,
                         help='Beats per minute, required if inputting ticks or beats')
     parser.add_argument('-r', '--fps', type=float, required=True,
                         help='Frames per second of the video')
@@ -201,11 +201,16 @@ if __name__ == '__main__':
     parser.add_argument('--print', action='store_true', help='Print the output to the console')
 
     args = parser.parse_args()
-    convert_time(args.input, args.output, args.input_value, args.bpm, args.fps, args.ticks_per_beat,
-                 args.print)
+
+    if len(args.output_types) == 1:
+        args.output_types = args.output_types[0]
+    else:
+        args.output_types = 'both'
 
     # Since BPM is not required for timecode, catch errors if it's not supplied for other inputs
-    if args.input == 'ticks' and args.bpm is None:
-        parser.error("-b/--bpm is required when -i/--input is 'ticks'")
-    elif args.input == 'beats' and args.bpm is None:
-        parser.error("-b/--bpm is required when -i/--input is 'beats'")
+    if args.input_type == 'ticks' and args.bpm is None:
+        parser.error("-p/--bpm is required when -i/--input is 'ticks'")
+    elif args.input_type == 'beats' and args.bpm is None:
+        parser.error("-p/--bpm is required when -i/--input is 'beats'")
+    convert_time(args.input_type, args.output_types, args.input_value, args.bpm, args.fps, args.division,
+                 args.print)
