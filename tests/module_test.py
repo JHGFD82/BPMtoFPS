@@ -19,8 +19,11 @@ def test_beats_to_timecode():
 
 
 def test_timecode_to_seconds():
-    # Example test case. Adjust according to your function's logic.
-    assert timecode_to_seconds("1:00") == 60
+    assert timecode_to_seconds("1:12.622") == 72.62
+
+
+def test_video_frames_to_seconds():
+    assert video_frames_to_seconds(112, 30) == 3.73
 
 
 def test_seconds_to_frames():
