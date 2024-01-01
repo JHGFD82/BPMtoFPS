@@ -2,14 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="BPMtoFPS",
-    version="1.2.0",
+    version="1.3.0",
     packages=find_packages(),
     author="Jeff Heller (JHGFD)",
     author_email="jeffheller@jhgfd.com",
     description="Convert time in a musical composition to time in a video production.",
     entry_points={
         'console_scripts': [
-            'convert_audio_to_video_timing=BPMtoFPS.main:convert_audio_to_video_timing',
+            'convert_time=BPMtoFPS.main:convert_time',
         ],
     },
     long_description=open('README.md').read(),
