@@ -10,7 +10,6 @@ from BPMtoFPS.main import (
 
 
 def test_ticks_to_seconds():
-    # Example test case. Adjust according to your function's logic.
     assert ticks_to_seconds(480, 120, 480) == 0.5
 
 
@@ -27,17 +26,14 @@ def test_video_frames_to_seconds():
 
 
 def test_seconds_to_frames():
-    # Example test case. Adjust according to your function's logic.
     assert seconds_to_frames(44.4, 29.97, frac=0.65) == 1331
 
 
 def test_seconds_to_timecode():
-    # Add test cases for seconds_to_timecode function
     assert seconds_to_timecode(27.567, 29.97) == "27:16"
 
 
 def test_convert_time():
-    # Add test cases for convert_audio_to_video_timing function
     assert convert_time('ticks', 'timecode', 240, 192, 29.97) == '0:04'
 
 
