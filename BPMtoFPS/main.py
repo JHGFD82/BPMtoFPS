@@ -163,7 +163,7 @@ def convert_time(ref_format, target_format, input_value, bpm=None, fps=None, tic
             output = (out_conversion_map['frames'](seconds, fps, fraction),
                       out_conversion_map['timecode'](seconds, fps, fraction))
         else:
-            output = out_conversion_map[target_format](seconds, fps)
+            output = out_conversion_map[target_format](seconds, fps, fraction)
     except Exception as err:
         raise ValueError(f"An error occurred during conversion: {err}")
 
