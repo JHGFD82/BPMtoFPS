@@ -225,7 +225,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if len(args.output_types) == 1:
+    if args.output_types is None:
+        parser.error("At least one output type must be specified using -f/--frames or -c/--timecode_output")
+    elif len(args.output_types) == 1:
         args.output_types = args.output_types[0]
     else:
         args.output_types = 'both'
