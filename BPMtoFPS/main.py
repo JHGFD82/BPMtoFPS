@@ -62,7 +62,24 @@ def timecode_to_seconds(input_value: str) -> float:
         return round(float(input_value), 2)
 
 
-def seconds_to_frames(seconds, fps, frac=fraction):
+def video_frames_to_seconds(input_value: int, fps: float) -> float:
+    """
+    Convert frames to seconds
+
+    Parameters:
+        input_value (int): The value to convert
+        fps (float): The frames per second of the video
+
+    Arithmetic:
+        seconds = frame / frames per second
+
+    Returns:
+        Total number of seconds as a float
+    """
+    return round(input_value / fps, 2)
+
+
+def seconds_to_frames(seconds: float, fps: float, frac: Optional[float] = fraction) -> int:
     """
     Convert seconds to frames
 
@@ -139,7 +156,7 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
                          "accepted.")
 
     # Convert input value to integer if 'ticks' or 'beats' is specified.
-    if ref_format in ['ticks', 'beats']:
+    if ref_format in ['ticks', 'beats', 'video_frames']:
         try:
             input_value = int(input_value)
         except ValueError:
@@ -152,7 +169,8 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
     in_conversion_map = {
         'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
         'beats': lambda x: beats_to_seconds(x, bpm),
-        'timecode': timecode_to_seconds
+        'timecode': timecode_to_seconds,
+        'video_frames': lambda x: video_frames_to_seconds(x, fps)
     }
     out_conversion_map = {
         'frames': seconds_to_frames,
@@ -187,6 +205,8 @@ if __name__ == '__main__':
                              help='Input is beats')
     input_group.add_argument('-t', '--timecode', dest='input_type', action='store_const', const='timecode',
                              help='Input is timecode in mm:ss.sss format')
+    input_group.add_argument('-v', '--video_frames', dest='input_type', action='store_const', const='video_frames',
+                             help='Input is video frame number')
 
     parser.add_argument('-f', '--frames', dest='output_types', action='append_const', const='frames',
                         help='Output as frames')
@@ -215,5 +235,8 @@ if __name__ == '__main__':
         parser.error("-p/--bpm is required when -i/--input is 'ticks'")
     elif args.input_type == 'beats' and args.bpm is None:
         parser.error("-p/--bpm is required when -i/--input is 'beats'")
+    elif args.input_type == 'video_frames' and args.fps is None:
+        parser.error("-r/--fps is required when -i/--input is 'video_frames'")
+
     convert_time(args.input_type, args.output_types, args.input_value, args.bpm, args.fps, args.division,
                  args.print)
