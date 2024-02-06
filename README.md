@@ -9,7 +9,8 @@ The math involved in this process is not complicated. If you know the exact para
 What information about your music do you have on hand? This package accepts the following with examples:
 1. Beats (integer) - You know your song is 128 beats per minute and you need the timing for every 24 beats in your 29.97fps video project.
 2. Ticks (integer) - You know your MIDI song file has a 480 tick-per-quarter-note resolution, is an instrument from a slow jam at 86 BPM, and you need to know when the note at the 34,812th tick appears in your 60fps video timeline.
-3. Timecode (string) - Your song isn't of digital origin or has a shifting BPM, but you pause the music at 37.333 and realize you need a video effect to take place at that exact time in your 23.96fps video and don't feel like doing the math.
+3. Measures (integer) - There's no better transition in all of music than the one that occurs between Section V and Section VI in Steve Reich's "Music for 18 Musicians." It occurs at measure 392 of the score (not counting repetitions per bar which makes this marker functionally useless but just go with me on this one). What frame in a 60fps video does this transition occur?
+4. Timecode (string) - Your song isn't of digital origin or has a shifting BPM, but you pause the music at 37.333 and realize you need a video effect to take place at that exact time in your 23.96fps video and don't feel like doing the math.
 
 ## Outputs
 To assist with constructing your video project, the included functions can deliver results in these formats, with examples:
@@ -23,9 +24,11 @@ To assist with constructing your video project, the included functions can deliv
 returns `337`
 2. `convert_time('ticks', 'timecode', 34812, bpm=86, fps=60)`
 returns `50:36`
+3. `convert_time('measures', 'frames', 392, bpm=208, notes_per_measure=6, fps=60`
+returns `40707`
 3. `convert_time('timecode', 'timecode', '0:37.333', fps=23.96)`
 returns `37:07`
-4. `convert time('ticks', 'both', 3840, bpm=192, fps=29.97, ticks_per_beat=360)`
+4. `convert_time('ticks', 'both', 3840, bpm=192, fps=29.97, ticks_per_beat=360)`
 returns `(100, '3:10')`
 
 ## Handy Features
