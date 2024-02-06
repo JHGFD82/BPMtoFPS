@@ -220,7 +220,7 @@ if __name__ == '__main__':
                                                  'to video frames or timecode')
 
     input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument('-m', '--ticks', dest='input_type', action='store_const', const='ticks',
+    input_group.add_argument('-k', '--ticks', dest='input_type', action='store_const', const='ticks',
                              help='Input is MIDI ticks')
     input_group.add_argument('-b', '--beats', dest='input_type', action='store_const', const='beats',
                              help='Input is beats')
