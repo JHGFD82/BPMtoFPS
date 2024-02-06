@@ -42,6 +42,24 @@ def beats_to_seconds(input_value: int, bpm: int) -> float:
     return input_value / bpm * SPM
 
 
+def measures_to_seconds(input_value: int, bpm: int, notes_per_measure: int) -> float:
+    """
+    Convert measures to seconds
+
+    Parameters:
+        input_value (int): The value to convert
+        bpm (int): The beats per minute of the piece of music
+        notes_per_measure (int): The number of quarter notes per measure
+
+    Arithmetic:
+        seconds = input_value * notes_per_measure / bpm * 60 seconds per minute
+
+    Returns:
+         Total number of seconds
+    """
+    return input_value * notes_per_measure / bpm * SPM
+
+
 def timecode_to_seconds(input_value: str) -> float:
     """
     Convert timecode to seconds
@@ -127,11 +145,11 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = frac
 
 
 def convert_time(ref_format: str, target_format: str, input_value: Union[int, str],
-                 bpm: Optional[int] = None, fps: float = None,
-                 ticks_per_beat: int = TPB, do_print: bool = False) -> Union[int, str, Tuple]:
+                 bpm: Optional[int] = None, fps: float = None, ticks_per_beat: int = TPB,
+                 notes_per_measure: int = None, do_print: bool = False) -> Union[int, str, Tuple]:
     """
-    The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, or timecode) to a video
-    format (either video frames or timecode).
+    The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, measures, or timecode) to
+    a video format (either video frames or timecode).
 
     Required Parameters:
         ref_format (string): The input of the function as either a number of ticks, beats, or timecode
@@ -142,6 +160,7 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
     Optional Parameters:
         bpm (float): The beats per minute, not required if inputting timecode
         ticks_per_beat (int): The number of ticks per beat
+        notes_per_measure (int): The number of quarter notes that make up a measure of music
         do_print (bool): If true, print the result to the console
 
     Returns:
@@ -156,7 +175,7 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
                          "accepted.")
 
     # Convert input value to integer if 'ticks' or 'beats' is specified.
-    if ref_format in ['ticks', 'beats', 'video_frames']:
+    if ref_format in ['ticks', 'beats', 'measures', 'video_frames']:
         try:
             input_value = int(input_value)
         except ValueError:
@@ -169,6 +188,7 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
     in_conversion_map = {
         'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
         'beats': lambda x: beats_to_seconds(x, bpm),
+        'measures': lambda x: measures_to_seconds(x, bpm, notes_per_measure),
         'timecode': timecode_to_seconds,
         'video_frames': lambda x: video_frames_to_seconds(x, fps)
     }
@@ -196,13 +216,16 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Convert MIDI ticks or timecode to video frames or timecode')
+    parser = argparse.ArgumentParser(description='Convert MIDI ticks, beats, measures, or audio timecode '
+                                                 'to video frames or timecode')
 
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument('-m', '--ticks', dest='input_type', action='store_const', const='ticks',
                              help='Input is MIDI ticks')
     input_group.add_argument('-b', '--beats', dest='input_type', action='store_const', const='beats',
                              help='Input is beats')
+    input_group.add_argument('-m', '--measures', dest='input_type', action='store_const', const='measures',
+                             help='Input is measures')
     input_group.add_argument('-t', '--timecode', dest='input_type', action='store_const', const='timecode',
                              help='Input is timecode in mm:ss.sss format')
     input_group.add_argument('-v', '--video_frames', dest='input_type', action='store_const', const='video_frames',
@@ -221,6 +244,8 @@ if __name__ == '__main__':
                         help='Frames per second of the video')
     parser.add_argument('-d', '--division', type=int, default=TPB,
                         help='Number of MIDI ticks per beat (division), default is 480')
+    parser.add_argument('-n', '--notes_per_measure', type=int,
+                        help='Number of quarter notes that make a measure of music')
     parser.add_argument('--print', action='store_true', help='Print the output to the console')
 
     args = parser.parse_args()
@@ -237,6 +262,8 @@ if __name__ == '__main__':
         parser.error("-p/--bpm is required when -i/--input is 'ticks'")
     elif args.input_type == 'beats' and args.bpm is None:
         parser.error("-p/--bpm is required when -i/--input is 'beats'")
+    elif args.input_type == 'measures' and (args.bpm is None or args.notes_per_measure is None):
+        parser.error("-p/--bpm and -n/--notes_per_measure is required when 'measures' is the input type")
     elif args.input_type == 'video_frames' and args.fps is None:
         parser.error("-r/--fps is required when -i/--input is 'video_frames'")
 
