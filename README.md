@@ -40,35 +40,6 @@ With v1.2.0, you can provide your own threshold for when a resulting decimal in 
 In addition to custom rounding, if you know what you're doing, you can skip past the mumbo jumbo of the main convert_time() function and instead go directly to the conversion functions themselves. Both input and output conversions are functions you can access directly. See the Conversion Functions Documentation for more details.
 
 ### Command-line Execution
-Don't want to pull open a Python console just to retrive some numbers? BPMtoFPS can be executed from the command line! To do so, navigate to the folder that contains the main.py script and run it:
+Don't want to pull open a Python console just to retrieve some numbers? BPMtoFPS can be executed from the command line!
 
-`python3 main.py`
-
-...and proceed to go nowhere with it. That's because you need to supply some arguments! Here is what you will need to enter:
-
-#### Input (pick one)
-`-m / --ticks` MIDI ticks (requires BPM and Division argument)
-
-`-b / --beats` Beats (requires BPM argument)
-
-`-t / --timecode` Audio timecode in mm:ss.sss format
-
-`-v / --video_frames` Video frames
-
-#### Output (pick one or both)
-`-f / --frames` Video frames
-
-`-c / --timecode_output` Timecode
-
-#### Required Arguments
-`-i / --input_value` The value being converted
-
-`-r / --fps` Frames per second
-
-`-p / --bpm` Beats per second, required only if inputting ticks or beats
-
-`-d / --division` Number of MIDI ticks per beat (division), default is 480, and required only if inputting ticks
-
-#### Optional Parameters
-`--print` Print to the console
-
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
