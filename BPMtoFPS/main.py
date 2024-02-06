@@ -258,14 +258,14 @@ if __name__ == '__main__':
         args.output_types = 'both'
 
     # Since BPM is not required for timecode, catch errors if it's not supplied for other inputs
-    if args.input_type == 'ticks' and args.bpm is None:
-        parser.error("-p/--bpm is required when -i/--input is 'ticks'")
+    if args.input_type == 'ticks' and (args.bpm is None or args.division is None):
+        parser.error("-p/--bpm and -d/--division is required when 'ticks' is the input type")
     elif args.input_type == 'beats' and args.bpm is None:
-        parser.error("-p/--bpm is required when -i/--input is 'beats'")
+        parser.error("-p/--bpm is required when 'beats' is the input type")
     elif args.input_type == 'measures' and (args.bpm is None or args.notes_per_measure is None):
         parser.error("-p/--bpm and -n/--notes_per_measure is required when 'measures' is the input type")
     elif args.input_type == 'video_frames' and args.fps is None:
-        parser.error("-r/--fps is required when -i/--input is 'video_frames'")
+        parser.error("-r/--fps is required when 'video_frames' is the input type")
 
     convert_time(args.input_type, args.output_types, args.input_value, args.bpm, args.fps, args.division,
-                 args.print)
+                 args.notes_per_measure, args.print)
