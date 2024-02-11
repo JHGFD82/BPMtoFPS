@@ -75,9 +75,9 @@ def timecode_to_seconds(input_value: str) -> float:
     """
     if ':' in input_value:
         minutes, seconds = map(float, input_value.split(':'))
-        return round(minutes * SPM + seconds, 2)
+        return minutes * SPM + seconds
     else:
-        return round(float(input_value), 2)
+        return float(input_value)
 
 
 def video_frames_to_seconds(input_value: int, fps: float) -> float:

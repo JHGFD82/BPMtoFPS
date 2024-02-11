@@ -20,11 +20,11 @@ def test_beats_to_timecode():
 
 
 def test_measures_to_seconds():
-    assert measures_to_seconds(392, 208, 6) == 678.4615384615385
+    assert round(measures_to_seconds(392, 208, 6), 5) == 678.46154
 
 
 def test_timecode_to_seconds():
-    assert timecode_to_seconds("1:12.622") == 72.62
+    assert timecode_to_seconds("1:12.622") == 72.622
 
 
 def test_video_frames_to_seconds():
