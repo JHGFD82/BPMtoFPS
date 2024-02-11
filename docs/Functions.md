@@ -32,6 +32,21 @@ Arithmetic:
 
 Returns: Total number of seconds as float
 
+### Convert measures to seconds
+
+```from BPMtoFPS import measures_to_seconds```
+```measures_to_seconds(input_value, bpm, notes_per_measure)```
+
+Parameters:
+- input_value (int): The value to convert
+- bpm (int): The beats per minute of the piece of music
+- notes_per_measure (int): The number of quarter notes per measure
+
+Arithmetic:
+```seconds = input_value * notes_per_measure / bpm * 60 seconds per minute```
+
+Returns: Total number of seconds as float
+
 ### Convert timecode to seconds
 
 ```from BPMtoFPS import timecode_to_seconds```

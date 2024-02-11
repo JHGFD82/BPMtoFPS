@@ -148,24 +148,25 @@ def convert_time(ref_format: str, target_formats: Union[str, list], input_value:
                  bpm: Optional[int] = None, fps: float = None, ticks_per_beat: int = TPB,
                  notes_per_measure: int = None, do_print: bool = False) -> Union[int, str, Dict]:
     """
-    The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, measures, or timecode) to
-    a video format (either video frames or timecode).
+    The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, measures, or timecode),
+    or video frames, to a video timing format, either video frames, timecode, or just seconds.
 
     Required Parameters:
-        ref_format (string): The input of the function as either a number of ticks, beats, or timecode
-        target_format (string): The output of the function as either a number of video frames, timecode, or both
-        input_value (string/int): The number of ticks or the timecode to be processed, based on the input provided
-        fps (float): The frames per second of the video project
+        - ref_format (string): The input of the function as either a number of ticks, beats, or timecode
+        - target_format (list): The output of the function as any combination of video frames, timecode, or seconds
+        - input_value (string/int): The number of ticks or the timecode to be processed, based on the input provided
+        - fps (float): The frames per second of the video project
 
     Optional Parameters:
-        bpm (float): The beats per minute, not required if inputting timecode
-        ticks_per_beat (int): The number of ticks per beat
-        notes_per_measure (int): The number of quarter notes that make up a measure of music
-        do_print (bool): If true, print the result to the console
+        - bpm (float): The beats per minute, not required if inputting timecode
+        - ticks_per_beat (int): The number of ticks per beat
+        - notes_per_measure (int): The number of quarter notes that make up a measure of music
+        - do_print (bool): If true, print the result to the console
 
     Returns:
         Depending on the target_format, this function returns either the number of frames in the video as an
-        integer, the specific timecode in the video as string, or both as a tuple.
+        integer, the specific timecode in the video as string, and/or just the seconds as a float. All results
+        are returned in a dictionary.
     """
 
     # Do not allow floats under any circumstances. While timecode can have a float in seconds, it must be entered as
@@ -179,7 +180,7 @@ def convert_time(ref_format: str, target_formats: Union[str, list], input_value:
         try:
             input_value = int(input_value)
         except ValueError:
-            raise ValueError("Input for ticks and beats must be an integer.")
+            raise ValueError("Input for ticks, beats, measures, and video_frames must be an integer.")
     else:
         input_value = str(input_value)
     # No conversion needed here for timecode, but instead ensure that the value is passed through as string.

@@ -6,27 +6,39 @@ Don't want to pull open a Python console just to retrieve some numbers? BPMtoFPS
 ...and proceed to go nowhere with it. That's because you need to supply some arguments! Here is what you will need to enter:
 
 ## Input (pick one)
-`-m / --ticks` MIDI ticks (requires BPM and Division argument)
+`-t / --ticks` MIDI ticks (requires BPM and Division argument)
 
 `-b / --beats` Beats (requires BPM argument)
 
-`-t / --timecode` Audio timecode in mm:ss.sss format
+`-m / --measures` Measures (requires BPM and Notes Per Measure argument)
+
+`-c / --timecode_in` Audio timecode in mm:ss.sss format
 
 `-v / --video_frames` Video frames
 
 ## Output (pick one or both)
-`-f / --frames` Video frames
+`-V / --frames` Video frames
 
-`-c / --timecode_output` Timecode
+`-C / --timecode_out` Timecode in ss:ff format
+
+`-S / --seconds` Seconds in ss.sss format
 
 ## Required Arguments
 `-i / --input_value` The value being converted
 
-`-r / --fps` Frames per second
+`-F / --fps` Frames per second, required for all inputs
 
-`-p / --bpm` Beats per second, required only if inputting ticks or beats
+`-B / --bpm` Beats per second, required if inputting ticks, beats, or measures
 
-`-d / --division` Number of MIDI ticks per beat (division), default is 480, and required only if inputting ticks
+`-D / --division` Number of MIDI ticks per beat (division), default is 480, required if inputting ticks
+
+`-N / --notes_per_measure` Number of notes per measure, required if inputting measures
 
 ## Optional Parameters
-`--print` Print to the console
+`-p / --print` Print to the console
+
+Now that you have all of these options, you can do some crazy argument combinations like
+
+`-mVCSpi`
+
+It's fun!
