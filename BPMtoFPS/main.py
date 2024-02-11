@@ -144,7 +144,7 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = frac
     return f"{whole_seconds}:{frame_part:02d}"
 
 
-def convert_time(ref_format: str, target_format: str, input_value: Union[int, str],
+def convert_time(ref_format: str, target_formats: Union[str, list], input_value: Union[int, str],
                  bpm: Optional[int] = None, fps: float = None, ticks_per_beat: int = TPB,
                  notes_per_measure: int = None, do_print: bool = False) -> Union[int, str, Dict]:
     """
@@ -200,13 +200,26 @@ def convert_time(ref_format: str, target_format: str, input_value: Union[int, st
     # Attempt conversion, using conversion maps to navigate to proper function
     try:
         seconds = in_conversion_map[ref_format](input_value)
-        if target_format == 'both':
-            output = (out_conversion_map['frames'](seconds, fps, fraction),
-                      out_conversion_map['timecode'](seconds, fps, fraction))
-        else:
-            output = out_conversion_map[target_format](seconds, fps, fraction)
     except Exception as err:
         raise ValueError(f"An error occurred during conversion: {err}")
+
+    # If the target_formats variable is not a list, make it a list
+    if not isinstance(target_formats, list):
+        target_formats = [target_formats]
+
+    # If 'seconds' are indicated in target_formats, add the seconds to the dictionary first and remove it from the list
+    if 'seconds' in target_formats:
+        output = {'seconds': seconds}
+        target_formats.remove('seconds')
+    else:
+        output = {}
+
+    # Now do the other target formats
+    for target_format in target_formats:
+        try:
+            output[target_format] = out_conversion_map[target_format](seconds, fps, fraction)
+        except Exception as err:
+            raise ValueError(f"An error occurred during conversion: {err}")
 
     # Print results if requested
     if do_print:
@@ -249,13 +262,6 @@ if __name__ == '__main__':
     parser.add_argument('--print', action='store_true', help='Print the output to the console')
 
     args = parser.parse_args()
-
-    if args.output_types is None:
-        parser.error("At least one output type must be specified using -f/--frames or -c/--timecode_output")
-    elif len(args.output_types) == 1:
-        args.output_types = args.output_types[0]
-    else:
-        args.output_types = 'both'
 
     # Since BPM is not required for timecode, catch errors if it's not supplied for other inputs
     if args.input_type == 'ticks' and (args.bpm is None or args.division is None):
