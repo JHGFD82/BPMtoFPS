@@ -1,6 +1,6 @@
 import math
 import argparse
-from typing import Union, Optional, Tuple
+from typing import Union, Optional, Dict
 
 TPB = 480  # Ticks per beat (resolution)
 SPM = 60  # Seconds per minute
@@ -146,7 +146,7 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = frac
 
 def convert_time(ref_format: str, target_format: str, input_value: Union[int, str],
                  bpm: Optional[int] = None, fps: float = None, ticks_per_beat: int = TPB,
-                 notes_per_measure: int = None, do_print: bool = False) -> Union[int, str, Tuple]:
+                 notes_per_measure: int = None, do_print: bool = False) -> Union[int, str, Dict]:
     """
     The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, measures, or timecode) to
     a video format (either video frames or timecode).

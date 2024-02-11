@@ -39,18 +39,23 @@ def test_seconds_to_timecode():
     assert seconds_to_timecode(27.567, 29.97) == "27:16"
 
 
+def test_seconds_to_seconds():
+    assert convert_time('timecode', 'seconds', "45.2525") == {'seconds': 45.2525}
+
+
 def test_convert_time():
-    assert convert_time('ticks', 'timecode', 240, 192, 29.97) == '0:04'
+    assert convert_time('ticks', 'timecode', 240, 192, 29.97) == {'timecode': '0:04'}
 
 
-def test_convert_time_beats_both():
-    assert convert_time('beats', 'both', 24, 192, 29.97) == (225, '7:15')
+def test_convert_time_beats_frames_timecode():
+    assert convert_time('beats', ['frames', 'timecode'], 24, 192, 29.97) == {'frames': 225, 'timecode': '7:15'}
 
 
-def test_convert_time_ticks_both():
-    assert convert_time('ticks', 'both', 3840, 192, 29.97,
-                        ticks_per_beat=360) == (100, '3:10')
+def test_convert_time_ticks_frames_timecode():
+    assert convert_time('ticks', ['frames', 'timecode'], 3840, 192, 29.97,
+                        ticks_per_beat=360) == {'frames': 100, 'timecode': '3:10'}
 
 
-def test_convert_time_timecode_both():
-    assert convert_time('timecode', 'both', '0:45.59', fps=29.97) == (1366, '45:17')
+def test_convert_time_timecode_frames_timecode_seconds():
+    assert convert_time('timecode', ['frames', 'timecode', 'seconds'], '0:45.59',
+                        fps=29.97) == {'frames': 1366, 'timecode': '45:17', 'seconds': 45.59}
