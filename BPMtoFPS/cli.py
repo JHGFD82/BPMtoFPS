@@ -45,13 +45,15 @@ def format_cli_output(result: Dict[str, Union[int, float, str]], quiet: bool = F
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description='Convert MIDI ticks, beats, measures, or audio timecode to video frames, timecode, or seconds',
+        description='Convert between music time and video time formats',
         epilog='''
 Examples:
-  %(prog)s -b -i 24 -B 128 -F 29.97 -V     # Convert 24 beats at 128 BPM to frames
-  %(prog)s -t -i 480 -B 120 -F 24 -C       # Convert 480 ticks to timecode
-  %(prog)s -c -i "1:30.5" -F 25 -S         # Convert timecode to seconds
-  %(prog)s -m -i 8 -B 140 -N 4 -F 30 -VCS  # Convert 8 measures to all formats
+  %(prog)s beats 24 --bpm 128 --fps 29.97 --to frames
+  %(prog)s beats 24 -b 128 -f 29.97 --to frames  
+  %(prog)s ticks 480 -b 120 -f 24 --to timecode  
+  %(prog)s timecode "1:30.5" --fps 25 --to seconds
+  %(prog)s measures 8 -b 140 -n 4 -f 30 --to all
+  %(prog)s video-frames 720 -f 24 --to seconds
         ''',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -59,87 +61,92 @@ Examples:
     # Add version info
     parser.add_argument('--version', action='version', version='BPMtoFPS 1.4.0')
 
-    # Group all input types together so only one can be selected
-    input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument('-t', '--ticks', dest='input_type', action='store_const', const=InputFormat.TICKS.value,
-                             help='Input is MIDI ticks')
-    input_group.add_argument('-b', '--beats', dest='input_type', action='store_const', const=InputFormat.BEATS.value,
-                             help='Input is beats')
-    input_group.add_argument('-m', '--measures', dest='input_type', action='store_const', const=InputFormat.MEASURES.value,
-                             help='Input is measures')
-    input_group.add_argument('-c', '--timecode', dest='input_type', action='store_const', const=InputFormat.TIMECODE.value,
-                             help='Input is timecode in mm:ss.sss format')
-    input_group.add_argument('-v', '--video-frames', dest='input_type', action='store_const', const=InputFormat.VIDEO_FRAMES.value,
-                             help='Input is video frame number')
-
-    # Output format arguments - default to frames if none specified
-    parser.add_argument('-V', '--frames', dest='output_types', action='append_const', const=OutputFormat.FRAMES.value,
-                        help='Output as frames')
-    parser.add_argument('-C', '--timecode-out', dest='output_types', action='append_const', const=OutputFormat.TIMECODE.value,
-                        help='Output as timecode')
-    parser.add_argument('-S', '--seconds', dest='output_types', action='append_const', const=OutputFormat.SECONDS.value,
-                        help='Output as seconds')
-    parser.add_argument('-A', '--all-formats', dest='output_all', action='store_true',
-                        help='Output in all available formats')
-
-    # Required parameters
-    parser.add_argument('-i', '--input-value', type=str, required=True,
-                        help='Input value (number of ticks, beats, measures, frames, or timecode)')
-    parser.add_argument('-F', '--fps', type=float,
-                        help='Frames per second of the video (required for video output formats)')
+    # Input format as positional argument (much clearer!)
+    parser.add_argument('input_format', 
+                       choices=['beats', 'ticks', 'measures', 'timecode', 'video-frames'],
+                       help='Input format type')
     
-    # Conditional parameters
-    parser.add_argument('-B', '--bpm', type=int,
-                        help='Beats per minute (required for ticks, beats, and measures)')
-    parser.add_argument('-D', '--division', type=int, default=DEFAULT_TICKS_PER_BEAT,
-                        help=f'MIDI ticks per beat (default: {DEFAULT_TICKS_PER_BEAT})')
-    parser.add_argument('-N', '--notes-per-measure', type=int,
-                        help='Quarter notes per measure (required for measures)')
+    # Input value as second positional argument
+    parser.add_argument('input_value', type=str,
+                       help='Value to convert (number for beats/ticks/measures/frames, "mm:ss.sss" for timecode)')
+
+    # Output format - much clearer than cryptic flags
+    parser.add_argument('--to', dest='output_format', 
+                       choices=['frames', 'timecode', 'seconds', 'all'],
+                       default='frames',
+                       help='Output format (default: frames)')
+
+    # Required/optional parameters with clear names
+    parser.add_argument('-b', '--bpm', type=int,
+                       help='Beats per minute (required for beats, ticks, measures)')
+    parser.add_argument('-f', '--fps', type=float,
+                       help='Frames per second (required for video outputs)')
+    parser.add_argument('-t', '--ticks-per-beat', type=int, default=DEFAULT_TICKS_PER_BEAT,
+                       help=f'MIDI ticks per beat (default: {DEFAULT_TICKS_PER_BEAT})')
+    parser.add_argument('-n', '--notes-per-measure', type=int,
+                       help='Quarter notes per measure (required for measures)')
 
     # Output control
     parser.add_argument('-q', '--quiet', action='store_true',
-                        help='Output only values (useful for scripting)')
+                       help='Output only values (useful for scripting)')
     parser.add_argument('--no-output', action='store_true',
-                        help='Suppress all output (useful for validation)')
+                       help='Suppress all output (useful for validation)')
 
     args = parser.parse_args()
 
-    # Handle default output format
-    if args.output_all:
-        args.output_types = [OutputFormat.FRAMES.value, OutputFormat.TIMECODE.value, OutputFormat.SECONDS.value]
-    elif args.output_types is None:
-        # Default to frames if no output format specified
-        args.output_types = [OutputFormat.FRAMES.value]
+    # Convert input format to internal format
+    input_format_map = {
+        'beats': InputFormat.BEATS.value,
+        'ticks': InputFormat.TICKS.value, 
+        'measures': InputFormat.MEASURES.value,
+        'timecode': InputFormat.TIMECODE.value,
+        'video-frames': InputFormat.VIDEO_FRAMES.value
+    }
+    
+    # Handle output formats
+    if args.output_format == 'all':
+        output_formats = [OutputFormat.FRAMES.value, OutputFormat.TIMECODE.value, OutputFormat.SECONDS.value]
+    else:
+        output_format_map = {
+            'frames': OutputFormat.FRAMES.value,
+            'timecode': OutputFormat.TIMECODE.value,
+            'seconds': OutputFormat.SECONDS.value
+        }
+        output_formats = [output_format_map[args.output_format]]
 
-    # Validate required parameters based on input/output types
-    video_output_formats = {OutputFormat.FRAMES.value, OutputFormat.TIMECODE.value}
-    needs_fps = any(fmt in video_output_formats for fmt in args.output_types)
+    # Validate required parameters with clear error messages
+    input_type = input_format_map[args.input_format]
+    
+    # Check for BPM requirement
+    if input_type in [InputFormat.BEATS.value, InputFormat.TICKS.value, InputFormat.MEASURES.value]:
+        if args.bpm is None:
+            parser.error(f"--bpm is required when converting from {args.input_format}")
+    
+    # Check for notes per measure requirement  
+    if input_type == InputFormat.MEASURES.value and args.notes_per_measure is None:
+        parser.error("--notes-per-measure is required when converting from measures")
+    
+    # Check for FPS requirement
+    video_outputs = [OutputFormat.FRAMES.value, OutputFormat.TIMECODE.value]
+    video_inputs = [InputFormat.VIDEO_FRAMES.value]
+    
+    needs_fps = (any(fmt in video_outputs for fmt in output_formats) or 
+                input_type in video_inputs)
     
     if needs_fps and args.fps is None:
-        parser.error("-F/--fps is required for video output formats (frames, timecode)")
-
-    # Input-specific validation
-    if args.input_type == InputFormat.TICKS.value and args.bpm is None:
-        parser.error("-B/--bpm is required for ticks input")
-    elif args.input_type == InputFormat.BEATS.value and args.bpm is None:
-        parser.error("-B/--bpm is required for beats input")
-    elif args.input_type == InputFormat.MEASURES.value:
-        if args.bpm is None or args.notes_per_measure is None:
-            parser.error("-B/--bpm and -N/--notes-per-measure are required for measures input")
-    elif args.input_type == InputFormat.VIDEO_FRAMES.value and args.fps is None:
-        parser.error("-F/--fps is required for video frames input")
+        parser.error("--fps is required for video-related conversions")
 
     try:
         # Perform conversion
         result = convert_time(
-            args.input_type, 
-            args.output_types, 
-            args.input_value, 
-            args.bpm, 
-            args.fps, 
-            args.division,
-            args.notes_per_measure, 
-            do_print=False  # We'll handle output ourselves
+            input_type,
+            output_formats, 
+            args.input_value,
+            args.bpm,
+            args.fps,
+            args.ticks_per_beat,
+            args.notes_per_measure,
+            do_print=False
         )
         
         # Output results
