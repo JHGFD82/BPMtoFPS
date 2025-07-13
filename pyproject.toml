@@ -19,6 +19,9 @@ classifiers = [
     "Topic :: Multimedia :: Video"
 ]
 
+[project.entry-points."console_scripts"]
+bpmtofps = "BPMtoFPS.cli:main"
+
 [tool.setuptools.packages.find]
 exclude = ["test_env*", "Prior Versions*", "docs*", "*.egg-info*"]
 
