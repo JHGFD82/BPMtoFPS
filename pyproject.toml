@@ -10,14 +10,17 @@ authors = [
 ]
 description = "Convert time in a musical composition to time in a video production."
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 classifiers = [
-    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.8",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Multimedia :: Video"
 ]
+
+[tool.setuptools.packages.find]
+exclude = ["test_env*", "Prior Versions*", "docs*", "*.egg-info*"]
 
 [project.urls]
 Homepage = "https://github.com/JHGFD82/BPMtoFPS"

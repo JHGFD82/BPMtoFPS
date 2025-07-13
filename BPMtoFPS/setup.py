@@ -15,13 +15,13 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     classifiers=[
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Multimedia :: Video"
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     install_requires=[],
     include_package_data=True,
     zip_safe=False
