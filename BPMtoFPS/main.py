@@ -6,35 +6,19 @@ import sys
 import os
 from typing import Union, Optional, Dict, List, Callable
 
-# Handle both direct execution and module import
-if __name__ == '__main__':
-    # Add the parent directory to Python path to allow imports
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from BPMtoFPS.models import InputFormat, OutputFormat
-    from BPMtoFPS.constants import DEFAULT_TICKS_PER_BEAT, DEFAULT_ROUNDING_THRESHOLD
-    from BPMtoFPS.validation import validate_input_value
-    from BPMtoFPS.converters import (
-        ticks_to_seconds,
-        beats_to_seconds,
-        measures_to_seconds,
-        timecode_to_seconds,
-        video_frames_to_seconds,
-        seconds_to_frames,
-        seconds_to_timecode
-    )
-else:
-    from .models import InputFormat, OutputFormat
-    from .constants import DEFAULT_TICKS_PER_BEAT, DEFAULT_ROUNDING_THRESHOLD
-    from .validation import validate_input_value
-    from .converters import (
-        ticks_to_seconds,
-        beats_to_seconds,
-        measures_to_seconds,
-        timecode_to_seconds,
-        video_frames_to_seconds,
-        seconds_to_frames,
-        seconds_to_timecode
-    )
+# Standard imports - always use relative imports for modules
+from .models import InputFormat, OutputFormat
+from .constants import DEFAULT_TICKS_PER_BEAT, DEFAULT_ROUNDING_THRESHOLD
+from .validation import validate_input_value
+from .converters import (
+    ticks_to_seconds,
+    beats_to_seconds,
+    measures_to_seconds,
+    timecode_to_seconds,
+    video_frames_to_seconds,
+    seconds_to_frames,
+    seconds_to_timecode
+)
 
 
 def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_value: Union[int, str],
@@ -131,5 +115,9 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
 
 # CLI entry point
 if __name__ == '__main__':
+    # For direct execution, we need to handle the relative import differently
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from BPMtoFPS.cli import main
     main()

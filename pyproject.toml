@@ -31,6 +31,9 @@ BPMtoFPS = "BPMtoFPS.cli:main"
 [tool.setuptools.packages.find]
 exclude = ["test_env*", "Prior Versions*", "docs*", "*.egg-info*"]
 
+[tool.setuptools.package-data]
+BPMtoFPS = ["*.pyi"]
+
 [project.urls]
 Homepage = "https://github.com/JHGFD82/BPMtoFPS"
 Issues = "https://github.com/JHGFD82/BPMtoFPS/issues"
