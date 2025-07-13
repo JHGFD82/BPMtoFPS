@@ -1,6 +1,6 @@
 import math
 import argparse
-from typing import Union, Optional, Dict
+from typing import Union, Optional, Dict, List, Callable
 
 TPB = 480  # Ticks per beat (resolution)
 SPM = 60  # Seconds per minute
@@ -112,9 +112,11 @@ def seconds_to_frames(seconds: float, fps: float, frac: Optional[float] = fracti
     Returns:
         Total number of frames
     """
+    if frac is None:
+        frac = fraction
     frame_count = seconds * fps
     whole_frames = math.floor(frame_count)
-    fractional_frames = frame_count % 1
+    fractional_frames: float = frame_count % 1
 
     if fractional_frames >= frac:
         whole_frames += 1
@@ -144,9 +146,9 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = frac
     return f"{whole_seconds}:{frame_part:02d}"
 
 
-def convert_time(ref_format: str, target_formats: Union[str, list], input_value: Union[int, str],
-                 bpm: Optional[int] = None, fps: float = None, ticks_per_beat: int = TPB,
-                 notes_per_measure: int = None, do_print: bool = False) -> Union[int, str, Dict]:
+def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_value: Union[int, str],
+                 bpm: Optional[int] = None, fps: Optional[float] = None, ticks_per_beat: int = TPB,
+                 notes_per_measure: Optional[int] = None, do_print: bool = False) -> Dict[str, Union[int, float, str]]:
     """
     The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, measures, or timecode),
     or video frames, to a video timing format, either video frames, timecode, or just seconds.
@@ -185,17 +187,37 @@ def convert_time(ref_format: str, target_formats: Union[str, list], input_value:
         input_value = str(input_value)
     # No conversion needed here for timecode, but instead ensure that the value is passed through as string.
 
-    # Conversion maps to functions
-    in_conversion_map = {
-        'ticks': lambda x: ticks_to_seconds(x, bpm, ticks_per_beat),
-        'beats': lambda x: beats_to_seconds(x, bpm),
-        'measures': lambda x: measures_to_seconds(x, bpm, notes_per_measure),
-        'timecode': timecode_to_seconds,
-        'video_frames': lambda x: video_frames_to_seconds(x, fps)
+    # Conversion maps to functions with proper validation
+    def validate_and_convert_ticks(x: Union[int, str]) -> float:
+        if bpm is None:
+            raise ValueError("bpm is required for ticks conversion")
+        return ticks_to_seconds(int(x), bpm, ticks_per_beat)
+    
+    def validate_and_convert_beats(x: Union[int, str]) -> float:
+        if bpm is None:
+            raise ValueError("bpm is required for beats conversion")
+        return beats_to_seconds(int(x), bpm)
+    
+    def validate_and_convert_measures(x: Union[int, str]) -> float:
+        if bpm is None or notes_per_measure is None:
+            raise ValueError("bpm and notes_per_measure are required for measures conversion")
+        return measures_to_seconds(int(x), bpm, notes_per_measure)
+    
+    def validate_and_convert_video_frames(x: Union[int, str]) -> float:
+        if fps is None:
+            raise ValueError("fps is required for video_frames conversion")
+        return video_frames_to_seconds(int(x), fps)
+
+    in_conversion_map: Dict[str, Callable[[Union[int, str]], float]] = {
+        'ticks': validate_and_convert_ticks,
+        'beats': validate_and_convert_beats,
+        'measures': validate_and_convert_measures,
+        'timecode': lambda x: timecode_to_seconds(str(x)),
+        'video_frames': validate_and_convert_video_frames
     }
-    out_conversion_map = {
-        'frames': seconds_to_frames,
-        'timecode': seconds_to_timecode
+    out_conversion_map: Dict[str, Callable[[float, float, float], Union[int, str]]] = {
+        'frames': lambda s, f, frac: seconds_to_frames(s, f, frac),
+        'timecode': lambda s, f, frac: seconds_to_timecode(s, f, frac)
     }
 
     # Attempt conversion, using conversion maps to navigate to proper function
@@ -210,7 +232,7 @@ def convert_time(ref_format: str, target_formats: Union[str, list], input_value:
 
     # If 'seconds' are indicated in target_formats, add the seconds to the dictionary first and remove it from the list
     if 'seconds' in target_formats:
-        output = {'seconds': seconds}
+        output: Dict[str, Union[int, float, str]] = {'seconds': seconds}
         target_formats.remove('seconds')
     else:
         output = {}
@@ -218,6 +240,8 @@ def convert_time(ref_format: str, target_formats: Union[str, list], input_value:
     # Now do the other target formats
     for target_format in target_formats:
         try:
+            if fps is None:
+                raise ValueError(f"fps is required for {target_format} conversion")
             output[target_format] = out_conversion_map[target_format](seconds, fps, fraction)
         except Exception as err:
             raise ValueError(f"An error occurred during conversion: {err}")
