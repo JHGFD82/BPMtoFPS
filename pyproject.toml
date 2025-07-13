@@ -37,3 +37,9 @@ BPMtoFPS = ["*.pyi"]
 [project.urls]
 Homepage = "https://github.com/JHGFD82/BPMtoFPS"
 Issues = "https://github.com/JHGFD82/BPMtoFPS/issues"
+
+[tool.unittest]
+# Discover and run tests
+start-directory = "tests"
+pattern = "*.py"
+verbosity = 2
