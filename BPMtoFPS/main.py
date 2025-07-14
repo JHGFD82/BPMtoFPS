@@ -59,12 +59,12 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
     Example:
         >>> result = convert_time('beats', 'frames', 24, bpm=120, fps=29.97)
         >>> print(result)
-        {'frames': 720}
+        {'frames': 359}
         
         >>> result = convert_time('ticks', ['frames', 'timecode'], 1440, 
         ...                      bpm=120, fps=29.97, ticks_per_beat=480)
         >>> print(result)
-        {'frames': 90, 'timecode': '3:00'}
+        {'frames': 45, 'timecode': '1:15'}
     """
     
     # Validate and convert input value

@@ -21,7 +21,7 @@ Example:
     >>> from BPMtoFPS import convert_time
     >>> result = convert_time('beats', 'frames', 24, bpm=120, fps=29.97)
     >>> print(result)
-    {'frames': 720}
+    {'frames': 359}
 
     >>> from BPMtoFPS import beats_to_seconds
     >>> seconds = beats_to_seconds(24, 120)
