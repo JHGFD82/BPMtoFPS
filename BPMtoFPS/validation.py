@@ -34,8 +34,11 @@ def validate_input_value(input_value: Union[int, str, float], ref_format: str) -
         1:30.5 <class 'str'>
         
         >>> # This will raise ValueError
-        >>> validate_input_value(24.5, 'beats')
-        ValueError: Input must be a string for timecodes or an integer for beats and ticks...
+        >>> try:
+        ...     validate_input_value(24.5, 'beats')
+        ... except ValueError as e:
+        ...     print("ValueError:", str(e)[:50] + "...")
+        ValueError: Input must be a string for timecodes or an inte...
     """
     # Do not allow floats under any circumstances. While timecode can have a float in seconds, 
     # it must be entered as string.
