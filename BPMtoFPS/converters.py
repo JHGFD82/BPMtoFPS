@@ -238,12 +238,12 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = DEFA
         >>> # Convert 45.5 seconds at 30 FPS
         >>> timecode = seconds_to_timecode(45.5, 30.0)
         >>> print(timecode)
-        '45:15'
+        45:15
         
         >>> # Convert 12.8 seconds at 29.97 FPS
         >>> timecode = seconds_to_timecode(12.8, 29.97)
         >>> print(timecode)
-        '12:24'
+        12:23
     """
     whole_frames = seconds_to_frames(seconds, fps, frac)
     whole_seconds = math.floor(seconds)
