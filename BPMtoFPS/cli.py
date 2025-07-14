@@ -12,15 +12,26 @@ from .main import convert_time
 
 
 def format_cli_output(result: Dict[str, Union[int, float, str]], quiet: bool = False) -> str:
-    """
-    Format the conversion result for CLI output in a user-friendly way.
+    """Format the conversion result for CLI output in a user-friendly way.
     
     Args:
-        result: Dictionary containing conversion results
-        quiet: If True, return only values without labels
+        result (Dict[str, Union[int, float, str]]): Dictionary containing conversion 
+            results from convert_time().
+        quiet (bool, optional): If True, return only values without labels for 
+            piping. Defaults to False.
         
     Returns:
-        Formatted string for CLI output
+        str: Formatted string for CLI output. If quiet=True, returns space-separated 
+            values. Otherwise, returns human-readable labeled output.
+            
+    Example:
+        >>> result = {'frames': 720, 'timecode': '24:00'}
+        >>> print(format_cli_output(result))
+        Frames: 720
+        Timecode: 24:00
+        
+        >>> print(format_cli_output(result, quiet=True))
+        720 24:00
     """
     if quiet:
         # Return only values, space-separated for piping
@@ -43,7 +54,16 @@ def format_cli_output(result: Dict[str, Union[int, float, str]], quiet: bool = F
 
 
 def main():
-    """Main CLI entry point."""
+    """Main CLI entry point.
+    
+    Parses command-line arguments and executes the BPMtoFPS conversion,
+    then formats and displays the results.
+    
+    Raises:
+        SystemExit: If argument parsing fails, required parameters are missing,
+            or conversion encounters an error. Exit codes: 1 for ValueError,
+            1 for unexpected errors, 2 for argument parsing errors (from argparse).
+    """
     parser = argparse.ArgumentParser(
         description='Convert between music time and video time formats',
         epilog='''

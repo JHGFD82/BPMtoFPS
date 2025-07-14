@@ -24,24 +24,47 @@ from .converters import (
 def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_value: Union[int, str],
                  bpm: Optional[int] = None, fps: Optional[float] = None, ticks_per_beat: int = DEFAULT_TICKS_PER_BEAT,
                  notes_per_measure: Optional[int] = None, do_print: bool = False) -> Dict[str, Union[int, float, str]]:
-    """
-    The main function of BPMtoFPS. Convert a form of audio timing (either MIDI ticks, beats, measures, or timecode),
-    or video frames, to a video timing format, either video frames, timecode, or just seconds.
-
-    Required Parameters:
-        - ref_format (str): The input format ('ticks', 'beats', 'measures', 'timecode', 'video_frames')
-        - target_formats (str or List[str]): The output format(s) ('frames', 'timecode', 'seconds')
-        - input_value (int or str): The value to be processed, based on the input format
-
-    Optional Parameters:
-        - bpm (int): The beats per minute, required for ticks/beats/measures
-        - fps (float): The frames per second, required for video output formats
-        - ticks_per_beat (int): The number of ticks per beat (default: 480)
-        - notes_per_measure (int): The number of quarter notes per measure, required for measures
-        - do_print (bool): If true, print the result to the console
-
+    """Convert between musical time and video time formats.
+    
+    The main function of BPMtoFPS. Converts audio timing formats (MIDI ticks, beats, 
+    measures, or timecode) or video frames to video timing formats (frames, timecode, 
+    or seconds).
+    
+    Args:
+        ref_format (str): The input format. One of: 'ticks', 'beats', 'measures', 
+            'timecode', 'video_frames'.
+        target_formats (str or List[str]): The output format(s). One or more of: 
+            'frames', 'timecode', 'seconds'.
+        input_value (int or str): The value to convert, based on the input format.
+        bpm (int, optional): Beats per minute. Required for ticks/beats/measures 
+            conversions.
+        fps (float, optional): Frames per second. Required for video output formats.
+        ticks_per_beat (int, optional): Number of ticks per beat. Defaults to 480.
+        notes_per_measure (int, optional): Number of quarter notes per measure. 
+            Required for measures conversion.
+        do_print (bool, optional): If True, print the result to console. Defaults 
+            to False.
+    
     Returns:
-        Dictionary containing the converted values in the requested target formats.
+        Dict[str, Union[int, float, str]]: Dictionary containing the converted values 
+            in the requested target formats.
+    
+    Raises:
+        ValueError: If required parameters are missing (bpm for musical formats, 
+            fps for video formats, notes_per_measure for measures), if input_value 
+            is invalid for the specified format, if ref_format or target_formats 
+            contain unsupported values, or if conversion fails due to invalid data.
+        KeyError: If ref_format or target_format contains unsupported format strings.
+        
+    Example:
+        >>> result = convert_time('beats', 'frames', 24, bpm=120, fps=29.97)
+        >>> print(result)
+        {'frames': 720}
+        
+        >>> result = convert_time('ticks', ['frames', 'timecode'], 1440, 
+        ...                      bpm=120, fps=29.97, ticks_per_beat=480)
+        >>> print(result)
+        {'frames': 90, 'timecode': '3:00'}
     """
     
     # Validate and convert input value
