@@ -20,8 +20,9 @@ from .converters import (
 
 
 def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_value: Union[int, str],
-                 bpm: Optional[int] = None, fps: Optional[float] = None, ticks_per_beat: int = DEFAULT_TICKS_PER_BEAT,
-                 notes_per_measure: Optional[int] = None, do_print: bool = False) -> Dict[str, Union[int, float, str]]:
+                 bpm: Optional[Union[int, float]] = None, fps: Optional[float] = None,
+                 ticks_per_beat: int = DEFAULT_TICKS_PER_BEAT, notes_per_measure: Optional[int] = None,
+                 frac: float = DEFAULT_ROUNDING_THRESHOLD, do_print: bool = False) -> Dict[str, Union[int, float, str]]:
     """Convert between musical time and video time formats.
     
     The main function of BPMtoFPS. Converts audio timing formats (MIDI ticks, beats, 
@@ -34,12 +35,14 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
         target_formats (str or List[str]): The output format(s). One or more of: 
             'frames', 'timecode', 'seconds'.
         input_value (int or str): The value to convert, based on the input format.
-        bpm (int, optional): Beats per minute. Required for ticks/beats/measures 
+        bpm (int or float, optional): Beats per minute. Required for ticks/beats/measures 
             conversions.
         fps (float, optional): Frames per second. Required for video output formats.
         ticks_per_beat (int, optional): Number of ticks per beat. Defaults to 480.
         notes_per_measure (int, optional): Number of quarter notes per measure. 
             Required for measures conversion.
+        frac (float, optional): Rounding threshold for fractional frames (0–1).
+            Defaults to 0.75. Passed through to seconds_to_frames/seconds_to_timecode.
         do_print (bool, optional): Deprecated. Print the result yourself instead.
             Defaults to False.
     
@@ -61,7 +64,7 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
         >>> result = convert_time('ticks', ['frames', 'timecode'], 1440, 
         ...                      bpm=120, fps=29.97, ticks_per_beat=480)
         >>> print(result)
-        {'frames': 45, 'timecode': '1:15'}
+        {'frames': 45, 'timecode': '00:00:01:15'}
     """
     if do_print:
         warnings.warn(
@@ -118,29 +121,17 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
     else:
         target_list = [target_formats]
 
-    # Handle 'seconds' output first (no fps needed)
-    if OutputFormat.SECONDS.value in target_list:
-        output: Dict[str, Union[int, float, str]] = {OutputFormat.SECONDS.value: seconds}
-        target_list.remove(OutputFormat.SECONDS.value)
-    else:
-        output = {}
-
-    # Handle frame-based output formats
+    # Build output dict in the order the caller requested
+    output: Dict[str, Union[int, float, str]] = {}
     for target_format in target_list:
-        if fps is None:
-            raise ValueError(f"fps is required for '{target_format}' conversion")
-        output[target_format] = out_conversion_map[target_format](seconds, fps, DEFAULT_ROUNDING_THRESHOLD)
+        if target_format == OutputFormat.SECONDS.value:
+            output[target_format] = seconds
+        else:
+            if fps is None:
+                raise ValueError(f"fps is required for '{target_format}' conversion")
+            output[target_format] = out_conversion_map[target_format](seconds, fps, frac)
 
     if do_print:
         print(output)
 
     return output
-
-
-# CLI entry point
-if __name__ == '__main__':
-    import sys
-    import os
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from BPMtoFPS.cli import main
-    main()
