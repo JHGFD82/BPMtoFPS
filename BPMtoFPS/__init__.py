@@ -33,7 +33,7 @@ from importlib.metadata import version, PackageNotFoundError
 
 try:
     __version__ = version('BPMtoFPS')
-except PackageNotFoundError:
+except PackageNotFoundError:  # pragma: no cover
     __version__ = 'unknown'
 
 from .main import convert_time

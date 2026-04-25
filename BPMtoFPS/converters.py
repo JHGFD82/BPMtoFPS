@@ -209,7 +209,7 @@ def seconds_to_frames(seconds: float, fps: float, frac: Optional[float] = DEFAUL
         >>> print(frames)
         54
     """
-    if frac is None:
+    if frac is None:  # pragma: no cover
         frac = DEFAULT_ROUNDING_THRESHOLD
     frame_count = seconds * fps
     whole_frames = math.floor(frame_count)
