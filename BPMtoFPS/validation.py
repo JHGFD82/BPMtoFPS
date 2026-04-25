@@ -2,8 +2,34 @@
 Input validation functions for BPMtoFPS package.
 """
 
-from typing import Union
-from .models import InputFormat
+from typing import Union, List
+from .models import InputFormat, OutputFormat
+
+_VALID_INPUT_FORMATS = {f.value for f in InputFormat}
+_VALID_OUTPUT_FORMATS = {f.value for f in OutputFormat}
+
+
+def validate_formats(ref_format: str, target_formats: Union[str, List[str]]) -> None:
+    """Validate ref_format and target_formats against known enum values.
+
+    Args:
+        ref_format (str): The input format string to validate.
+        target_formats (str or List[str]): The output format(s) to validate.
+
+    Raises:
+        ValueError: If ref_format or any element of target_formats is not a
+            recognised format string.
+    """
+    if ref_format not in _VALID_INPUT_FORMATS:
+        valid = ', '.join(sorted(_VALID_INPUT_FORMATS))
+        raise ValueError(f"Unknown input format '{ref_format}'. Valid options: {valid}")
+
+    if isinstance(target_formats, str):
+        target_formats = [target_formats]
+    for fmt in target_formats:
+        if fmt not in _VALID_OUTPUT_FORMATS:
+            valid = ', '.join(sorted(_VALID_OUTPUT_FORMATS))
+            raise ValueError(f"Unknown output format '{fmt}'. Valid options: {valid}")
 
 
 def validate_input_value(input_value: Union[int, str, float], ref_format: str) -> Union[int, str]:
