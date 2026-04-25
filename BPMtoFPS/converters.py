@@ -3,16 +3,16 @@ Core conversion functions for BPMtoFPS package.
 """
 
 import math
-from typing import Optional
+from typing import Optional, Union
 from .constants import SECONDS_PER_MINUTE, DEFAULT_ROUNDING_THRESHOLD
 
 
-def ticks_to_seconds(input_value: int, bpm: int, ticks_per_beat: int) -> float:
+def ticks_to_seconds(input_value: int, bpm: Union[int, float], ticks_per_beat: int) -> float:
     """Convert MIDI ticks to seconds.
 
     Args:
         input_value (int): The number of ticks to convert.
-        bpm (int): The beats per minute of the musical piece.
+        bpm (int or float): The beats per minute of the musical piece.
         ticks_per_beat (int): The number of ticks per quarter note (typically 480).
 
     Returns:
@@ -39,12 +39,12 @@ def ticks_to_seconds(input_value: int, bpm: int, ticks_per_beat: int) -> float:
     return input_value / ticks_per_beat / bpm * SECONDS_PER_MINUTE
 
 
-def beats_to_seconds(input_value: int, bpm: int) -> float:
+def beats_to_seconds(input_value: int, bpm: Union[int, float]) -> float:
     """Convert beats to seconds.
 
     Args:
         input_value (int): The number of beats to convert.
-        bpm (int): The beats per minute of the musical piece.
+        bpm (int or float): The beats per minute of the musical piece.
 
     Returns:
         float: Total number of seconds.
@@ -70,12 +70,12 @@ def beats_to_seconds(input_value: int, bpm: int) -> float:
     return input_value / bpm * SECONDS_PER_MINUTE
 
 
-def measures_to_seconds(input_value: int, bpm: int, notes_per_measure: int) -> float:
+def measures_to_seconds(input_value: int, bpm: Union[int, float], notes_per_measure: int) -> float:
     """Convert measures to seconds.
 
     Args:
         input_value (int): The number of measures to convert.
-        bpm (int): The beats per minute of the musical piece.
+        bpm (int or float): The beats per minute of the musical piece.
         notes_per_measure (int): The number of quarter notes per measure.
 
     Returns:
@@ -106,8 +106,8 @@ def timecode_to_seconds(input_value: str) -> float:
     """Convert timecode to seconds.
 
     Args:
-        input_value (str): The timecode value to convert. Format: "mm:ss.sss" 
-            or just seconds as string.
+        input_value (str): The timecode value to convert. Supported formats:
+            "hh:mm:ss.sss", "mm:ss.sss", or bare seconds as a string.
 
     Returns:
         float: Total number of seconds.
@@ -118,23 +118,31 @@ def timecode_to_seconds(input_value: str) -> float:
         TypeError: If input_value is not a string.
         
     Note:
-        Supports both "mm:ss.sss" format and direct seconds input as string.
-        Formula: seconds = minutes * 60 + seconds
+        Supports "hh:mm:ss.sss", "mm:ss.sss", and direct seconds input as string.
         
     Example:
-        >>> # Convert timecode format
+        >>> # Convert mm:ss.sss format
         >>> seconds = timecode_to_seconds("1:30.5")
         >>> print(seconds)
         90.5
+        
+        >>> # Convert hh:mm:ss.sss format
+        >>> seconds = timecode_to_seconds("1:30:15.5")
+        >>> print(seconds)
+        5415.5
         
         >>> # Convert direct seconds as string
         >>> seconds = timecode_to_seconds("45.25")
         >>> print(seconds)
         45.25
     """
-    if ':' in input_value:
-        minutes, seconds = map(float, input_value.split(':'))
-        return minutes * SECONDS_PER_MINUTE + seconds
+    parts = input_value.split(':')
+    if len(parts) == 3:
+        hours, minutes, secs = map(float, parts)
+        return hours * 3600 + minutes * SECONDS_PER_MINUTE + secs
+    elif len(parts) == 2:
+        minutes, secs = map(float, parts)
+        return minutes * SECONDS_PER_MINUTE + secs
     else:
         return float(input_value)
 
@@ -223,7 +231,7 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = DEFA
             Defaults to 0.75.
 
     Returns:
-        str: Timecode in "seconds:frames" format (e.g., "45:12").
+        str: Timecode in SMPTE "HH:MM:SS:FF" format (e.g., "00:00:45:12").
         
     Raises:
         TypeError: If any argument is not a number.
@@ -232,21 +240,24 @@ def seconds_to_timecode(seconds: float, fps: float, frac: Optional[float] = DEFA
         
     Note:
         Uses seconds_to_frames() for frame calculation with smart rounding.
-        Formula: timecode = f"{whole_seconds}:{frame_part:02d}"
+        Format: HH:MM:SS:FF (hours, minutes, seconds, frames)
         
     Example:
         >>> # Convert 45.5 seconds at 30 FPS
         >>> timecode = seconds_to_timecode(45.5, 30.0)
         >>> print(timecode)
-        45:15
+        00:00:45:15
         
         >>> # Convert 12.8 seconds at 29.97 FPS
         >>> timecode = seconds_to_timecode(12.8, 29.97)
         >>> print(timecode)
-        12:23
+        00:00:12:23
     """
     whole_frames = seconds_to_frames(seconds, fps, frac)
-    whole_seconds = math.floor(seconds)
-    frame_part = int(whole_frames - whole_seconds * fps)
+    total_int_seconds = math.floor(seconds)
+    hours = total_int_seconds // 3600
+    minutes = (total_int_seconds % 3600) // 60
+    secs = total_int_seconds % 60
+    frame_part = int(whole_frames - total_int_seconds * fps)
 
-    return f"{whole_seconds}:{frame_part:02d}"
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}:{frame_part:02d}"
