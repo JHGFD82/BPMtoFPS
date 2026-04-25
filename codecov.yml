@@ -1,0 +1,13 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 90%        # fail if project coverage drops below 90%
+        threshold: 1%      # allow up to 1% drop before flagging
+    patch:
+      default:
+        target: 90%        # new code in PRs must be at least 90% covered
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
