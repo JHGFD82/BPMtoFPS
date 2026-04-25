@@ -2,14 +2,12 @@
 Main BPMtoFPS module containing the primary convert_time function.
 """
 
-import sys
-import os
+import warnings
 from typing import Union, Optional, Dict, List, Callable
 
-# Standard imports - always use relative imports for modules
 from .models import InputFormat, OutputFormat
 from .constants import DEFAULT_TICKS_PER_BEAT, DEFAULT_ROUNDING_THRESHOLD
-from .validation import validate_input_value
+from .validation import validate_formats, validate_input_value
 from .converters import (
     ticks_to_seconds,
     beats_to_seconds,
@@ -42,8 +40,8 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
         ticks_per_beat (int, optional): Number of ticks per beat. Defaults to 480.
         notes_per_measure (int, optional): Number of quarter notes per measure. 
             Required for measures conversion.
-        do_print (bool, optional): If True, print the result to console. Defaults 
-            to False.
+        do_print (bool, optional): Deprecated. Print the result yourself instead.
+            Defaults to False.
     
     Returns:
         Dict[str, Union[int, float, str]]: Dictionary containing the converted values 
@@ -52,9 +50,8 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
     Raises:
         ValueError: If required parameters are missing (bpm for musical formats, 
             fps for video formats, notes_per_measure for measures), if input_value 
-            is invalid for the specified format, if ref_format or target_formats 
-            contain unsupported values, or if conversion fails due to invalid data.
-        KeyError: If ref_format or target_format contains unsupported format strings.
+            is invalid for the specified format, or if ref_format or target_formats 
+            contain unsupported values.
         
     Example:
         >>> result = convert_time('beats', 'frames', 24, bpm=120, fps=29.97)
@@ -66,7 +63,17 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
         >>> print(result)
         {'frames': 45, 'timecode': '1:15'}
     """
-    
+    if do_print:
+        warnings.warn(
+            "The 'do_print' parameter is deprecated and will be removed in a future version. "
+            "Print the return value yourself instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    # Validate format strings up front for clear error messages
+    validate_formats(ref_format, target_formats)
+
     # Validate and convert input value
     validated_input = validate_input_value(input_value, ref_format)
 
@@ -99,37 +106,31 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
         InputFormat.VIDEO_FRAMES.value: validate_and_convert_video_frames
     }
     out_conversion_map: Dict[str, Callable[[float, float, float], Union[int, str]]] = {
-        OutputFormat.FRAMES.value: lambda s, f, frac: seconds_to_frames(s, f, frac),
-        OutputFormat.TIMECODE.value: lambda s, f, frac: seconds_to_timecode(s, f, frac)
+        OutputFormat.FRAMES.value: seconds_to_frames,
+        OutputFormat.TIMECODE.value: seconds_to_timecode,
     }
 
-    # Attempt conversion, using conversion maps to navigate to proper function
-    try:
-        seconds = in_conversion_map[ref_format](validated_input)
-    except Exception as err:
-        raise ValueError(f"An error occurred during conversion: {err}")
+    seconds = in_conversion_map[ref_format](validated_input)
 
-    # If the target_formats variable is not a list, make it a list
-    if not isinstance(target_formats, list):
-        target_formats = [target_formats]
+    # Work on a copy so the caller's list is never mutated
+    if isinstance(target_formats, list):
+        target_list = list(target_formats)
+    else:
+        target_list = [target_formats]
 
-    # If 'seconds' are indicated in target_formats, add the seconds to the dictionary first and remove it from the list
-    if OutputFormat.SECONDS.value in target_formats:
+    # Handle 'seconds' output first (no fps needed)
+    if OutputFormat.SECONDS.value in target_list:
         output: Dict[str, Union[int, float, str]] = {OutputFormat.SECONDS.value: seconds}
-        target_formats.remove(OutputFormat.SECONDS.value)
+        target_list.remove(OutputFormat.SECONDS.value)
     else:
         output = {}
 
-    # Now do the other target formats
-    for target_format in target_formats:
-        try:
-            if fps is None:
-                raise ValueError(f"fps is required for {target_format} conversion")
-            output[target_format] = out_conversion_map[target_format](seconds, fps, DEFAULT_ROUNDING_THRESHOLD)
-        except Exception as err:
-            raise ValueError(f"An error occurred during conversion: {err}")
+    # Handle frame-based output formats
+    for target_format in target_list:
+        if fps is None:
+            raise ValueError(f"fps is required for '{target_format}' conversion")
+        output[target_format] = out_conversion_map[target_format](seconds, fps, DEFAULT_ROUNDING_THRESHOLD)
 
-    # Print results if requested
     if do_print:
         print(output)
 
@@ -138,7 +139,6 @@ def convert_time(ref_format: str, target_formats: Union[str, List[str]], input_v
 
 # CLI entry point
 if __name__ == '__main__':
-    # For direct execution, we need to handle the relative import differently
     import sys
     import os
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
