@@ -9,6 +9,7 @@ from BPMtoFPS.converters import (
     seconds_to_timecode,
 )
 from BPMtoFPS import convert_time
+from BPMtoFPS.validation import validate_formats, validate_input_value
 
 
 class TestBPMtoFPS(unittest.TestCase):
@@ -79,6 +80,67 @@ class TestBPMtoFPS(unittest.TestCase):
         result_custom = convert_time('beats', 'frames', 2, bpm=120, fps=29.97, frac=0.99)
         self.assertEqual(result_default['frames'], 30)
         self.assertEqual(result_custom['frames'], 29)
+
+
+class TestValidation(unittest.TestCase):
+
+    # validate_formats — invalid input format
+    def test_invalid_ref_format_raises(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_formats('nonsense', 'frames')
+        self.assertIn('nonsense', str(ctx.exception))
+
+    # validate_formats — invalid output format
+    def test_invalid_output_format_raises(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_formats('beats', 'nonsense')
+        self.assertIn('nonsense', str(ctx.exception))
+
+    # validate_input_value — float input rejected
+    def test_float_input_raises(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_input_value(24.5, 'beats')
+        self.assertIn('Floats are not accepted', str(ctx.exception))
+
+    # validate_input_value — non-integer string for numeric format
+    def test_non_integer_string_for_beats_raises(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_input_value('abc', 'beats')
+        self.assertIn('beats', str(ctx.exception))
+
+
+class TestConvertTimeMissingParams(unittest.TestCase):
+
+    def test_ticks_missing_bpm(self):
+        with self.assertRaises(ValueError):
+            convert_time('ticks', 'frames', 480, fps=30)
+
+    def test_beats_missing_bpm(self):
+        with self.assertRaises(ValueError):
+            convert_time('beats', 'frames', 4, fps=30)
+
+    def test_measures_missing_bpm(self):
+        with self.assertRaises(ValueError):
+            convert_time('measures', 'frames', 2, fps=30, notes_per_measure=4)
+
+    def test_measures_missing_notes_per_measure(self):
+        with self.assertRaises(ValueError):
+            convert_time('measures', 'frames', 2, bpm=120, fps=30)
+
+    def test_video_frames_missing_fps(self):
+        with self.assertRaises(ValueError):
+            convert_time('video_frames', 'seconds', 90)
+
+    def test_frames_output_missing_fps(self):
+        with self.assertRaises(ValueError):
+            convert_time('timecode', 'frames', '1:30.0')
+
+    def test_do_print_deprecated(self):
+        import warnings
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            convert_time('timecode', 'seconds', '45.0', do_print=True)
+        self.assertTrue(any(issubclass(w.category, DeprecationWarning) for w in caught))
 
 
 if __name__ == '__main__':
