@@ -1,5 +1,5 @@
 import unittest
-from BPMtoFPS.main import (
+from BPMtoFPS.converters import (
     ticks_to_seconds,
     beats_to_seconds,
     measures_to_seconds,
@@ -7,8 +7,8 @@ from BPMtoFPS.main import (
     video_frames_to_seconds,
     seconds_to_frames,
     seconds_to_timecode,
-    convert_time
 )
+from BPMtoFPS import convert_time
 
 
 class TestBPMtoFPS(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestBPMtoFPS(unittest.TestCase):
         self.assertEqual(timecode_to_seconds("1:12.622"), 72.622)
 
     def test_video_frames_to_seconds(self):
-        self.assertEqual(video_frames_to_seconds(112, 30), 3.73)
+        self.assertAlmostEqual(video_frames_to_seconds(112, 30), 112 / 30)
 
     def test_seconds_to_frames(self):
         self.assertEqual(seconds_to_frames(44.4, 29.97, frac=0.65), 1331)
