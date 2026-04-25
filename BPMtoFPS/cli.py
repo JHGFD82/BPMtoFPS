@@ -13,7 +13,7 @@ from .main import convert_time
 
 try:
     _version = version('BPMtoFPS')
-except PackageNotFoundError:
+except PackageNotFoundError:  # pragma: no cover
     _version = 'unknown'
 
 
@@ -103,7 +103,7 @@ Examples:
                        help='Output format (default: frames)')
 
     # Required/optional parameters with clear names
-    parser.add_argument('-b', '--bpm', type=int,
+    parser.add_argument('-b', '--bpm', type=float,
                        help='Beats per minute (required for beats, ticks, measures)')
     parser.add_argument('-f', '--fps', type=float,
                        help='Frames per second (required for video outputs)')
