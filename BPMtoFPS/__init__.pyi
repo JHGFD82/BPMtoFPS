@@ -4,6 +4,8 @@ Type stubs for BPMtoFPS package.
 
 from typing import Dict, List, Union, Optional
 
+__version__: str
+
 # Main conversion function
 def convert_time(
     ref_format: str,
@@ -13,7 +15,7 @@ def convert_time(
     fps: Optional[float] = ...,
     ticks_per_beat: int = ...,
     notes_per_measure: Optional[int] = ...,
-    do_print: bool = ...
+    do_print: bool = ...  # Deprecated: print the return value yourself
 ) -> Dict[str, Union[int, float, str]]: ...
 
 # Input converter functions

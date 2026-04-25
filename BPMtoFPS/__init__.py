@@ -29,6 +29,13 @@ Example:
     12.0
 """
 
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version('BPMtoFPS')
+except PackageNotFoundError:
+    __version__ = 'unknown'
+
 from .main import convert_time
 from .converters import (
     ticks_to_seconds,
@@ -51,6 +58,9 @@ from .constants import (
 
 # Explicitly declare what should be available when importing the package
 __all__ = [
+    # Package version
+    '__version__',
+
     # Main function
     'convert_time',
     

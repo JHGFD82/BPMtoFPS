@@ -4,11 +4,17 @@ Command-line interface for BPMtoFPS package.
 
 import argparse
 import sys
+from importlib.metadata import version, PackageNotFoundError
 from typing import Dict, Union
 
 from .models import InputFormat, OutputFormat
 from .constants import DEFAULT_TICKS_PER_BEAT
 from .main import convert_time
+
+try:
+    _version = version('BPMtoFPS')
+except PackageNotFoundError:
+    _version = 'unknown'
 
 
 def format_cli_output(result: Dict[str, Union[int, float, str]], quiet: bool = False) -> str:
@@ -79,7 +85,7 @@ Examples:
     )
 
     # Add version info
-    parser.add_argument('--version', action='version', version='BPMtoFPS 1.4.0')
+    parser.add_argument('--version', action='version', version=f'BPMtoFPS {_version}')
 
     # Input format as positional argument (much clearer!)
     parser.add_argument('input_format', 
