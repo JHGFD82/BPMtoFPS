@@ -43,3 +43,16 @@ Issues = "https://github.com/JHGFD82/BPMtoFPS/issues"
 start-directory = "tests"
 pattern = "*.py"
 verbosity = 2
+
+[tool.coverage.run]
+source = ["BPMtoFPS"]
+omit = ["BPMtoFPS/__main__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "warnings\\.warn",
+]
