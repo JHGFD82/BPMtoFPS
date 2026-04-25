@@ -1,7 +1,7 @@
 import io
-import sys
 import unittest
 from contextlib import redirect_stdout, redirect_stderr
+from typing import Dict, Tuple, Union
 from unittest.mock import patch
 
 from BPMtoFPS.cli import format_cli_output, main
@@ -11,7 +11,7 @@ from BPMtoFPS.cli import format_cli_output, main
 # Helpers
 # ---------------------------------------------------------------------------
 
-def run_cli(*args):
+def run_cli(*args: str) -> Tuple[str, str, Union[str, int, None]]:
     """Run main() with the given argv, capture stdout/stderr, return both.
 
     Returns a tuple (stdout_str, stderr_str, exit_code_or_None).
@@ -49,7 +49,7 @@ class TestFormatCliOutput(unittest.TestCase):
         self.assertEqual(format_cli_output({'seconds': 7}), 'Seconds: 7')
 
     def test_all_formats(self):
-        result = {'frames': 225, 'timecode': '00:00:07:15', 'seconds': 7.5}
+        result: Dict[str, Union[int, float, str]] = {'frames': 225, 'timecode': '00:00:07:15', 'seconds': 7.5}
         expected = 'Frames: 225\nTimecode: 00:00:07:15\nSeconds: 7.500'
         self.assertEqual(format_cli_output(result), expected)
 
@@ -57,7 +57,7 @@ class TestFormatCliOutput(unittest.TestCase):
         self.assertEqual(format_cli_output({'frames': 225}, quiet=True), '225')
 
     def test_quiet_multiple(self):
-        result = {'frames': 225, 'timecode': '00:00:07:15'}
+        result: Dict[str, Union[int, float, str]] = {'frames': 225, 'timecode': '00:00:07:15'}
         self.assertEqual(format_cli_output(result, quiet=True), '225 00:00:07:15')
 
 
@@ -161,7 +161,7 @@ class TestCliErrorPaths(unittest.TestCase):
 
     def test_invalid_input_format_rejected_by_argparse(self):
         # argparse enforces choices, so an unknown format exits with code 2
-        _, stderr, code = run_cli('unknown_format', '24', '-b', '120', '-f', '30')
+        _, _stderr, code = run_cli('unknown_format', '24', '-b', '120', '-f', '30')
         self.assertEqual(code, 2)
 
     def test_unexpected_exception_exits_with_code_1(self):
