@@ -165,9 +165,9 @@ def video_frames_to_seconds(input_value: int, fps: float) -> float:
         >>> # Convert 750 frames at 29.97 FPS (NTSC)
         >>> seconds = video_frames_to_seconds(750, 29.97)
         >>> print(seconds)
-        25.03
+        25.025025025025027
     """
-    return round(input_value / fps, 2)
+    return input_value / fps
 
 
 def seconds_to_frames(seconds: float, fps: float, frac: Optional[float] = DEFAULT_ROUNDING_THRESHOLD) -> int:
